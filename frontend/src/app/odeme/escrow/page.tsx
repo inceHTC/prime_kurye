@@ -1,10 +1,6 @@
-
-
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react' // Suspense eklendi
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Zap, Shield, Loader2, CheckCircle, Bike } from 'lucide-react'
@@ -13,7 +9,8 @@ import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
 
-export default function EscrowOdemePage() {
+// Mevcut tüm kodun buraya taşındı
+function EscrowOdemeContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get('orderId')
@@ -142,5 +139,19 @@ export default function EscrowOdemePage() {
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
+  )
+}
+
+// Ana Export sarmalayıcısı
+export default function EscrowOdemePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid #c8860a', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    }>
+      <EscrowOdemeContent />
+    </Suspense>
   )
 }

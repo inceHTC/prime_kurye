@@ -1,10 +1,6 @@
-
-
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react' // Suspense eklendi
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Zap, ArrowLeft, Shield, Lock, Loader2, CheckCircle } from 'lucide-react'
@@ -13,7 +9,8 @@ import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
 
-export default function OdemePage() {
+// 1. Mevcut tüm mantık ve UI buraya taşındı
+function PaymentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
@@ -54,7 +51,6 @@ export default function OdemePage() {
       const res = await api.post('/payments/initialize', { orderId })
       if (res.data.success) {
         setCheckoutForm(res.data.data.checkoutFormContent)
-        // iyzico form'u DOM'a enjekte et
         setTimeout(() => {
           const script = document.createElement('script')
           script.src = 'https://sandbox-static.iyzipay.com/checkoutform/v2/bundle.js?random=' + new Date().getTime()
@@ -78,7 +74,6 @@ export default function OdemePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: "'Barlow', sans-serif" }}>
-
       {/* Header */}
       <header style={{ background: '#1c0800', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -101,15 +96,12 @@ export default function OdemePage() {
       </header>
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '32px 20px 80px' }}>
-
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1c0800', marginBottom: 24, fontFamily: "'Barlow', sans-serif" }}>
           Ödeme
         </h1>
 
         {order && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }} className="order-grid">
-
-            {/* Sipariş özeti */}
             <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', padding: '20px 22px', gridColumn: '1 / -1' }}>
               <h2 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1c0800', marginBottom: 16, fontFamily: "'Barlow', sans-serif" }}>
                 Sipariş Özeti
@@ -138,10 +130,8 @@ export default function OdemePage() {
           </div>
         )}
 
-        {/* İyzico ödeme formu */}
         {!checkoutForm ? (
           <div>
-            {/* Güvenlik bilgisi */}
             <div style={{ display: 'flex', gap: 12, marginBottom: 20, padding: '14px 18px', background: '#f0fdf4', borderRadius: 10, border: '1px solid rgba(22,163,74,0.15)' }}>
               <Shield size={18} color="#16a34a" style={{ flexShrink: 0, marginTop: 1 }} />
               <p style={{ fontSize: '0.85rem', color: '#166534', lineHeight: 1.6 }}>
@@ -175,7 +165,6 @@ export default function OdemePage() {
             />
           </div>
         )}
-
       </main>
 
       <style>{`
@@ -185,5 +174,19 @@ export default function OdemePage() {
         }
       `}</style>
     </div>
+  )
+}
+
+// 2. Ana Sayfa (İstediğin fallback şablonuyla sarmalanmış hali)
+export default function OdemePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid #c8860a', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    }>
+      <PaymentContent />
+    </Suspense>
   )
 }
