@@ -5,11 +5,29 @@ import { Code2, Zap, Shield, Clock, ChevronRight, ExternalLink } from 'lucide-re
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 
+const docsNoticeHref = '/entegrasyon/api-dokumantasyon'
+
 const features = [
-  { icon: Zap, title: 'Hızlı Entegrasyon', desc: 'REST API ile dakikalar içinde entegre olun. Kapsamlı dökümantasyon ve örnek kodlar mevcut.' },
-  { icon: Shield, title: 'Güvenli', desc: 'JWT kimlik doğrulama ve HTTPS şifreleme ile güvenli veri iletimi.' },
-  { icon: Clock, title: 'Gerçek Zamanlı', desc: 'Webhook desteği ile sipariş durum güncellemelerini anında alın.' },
-  { icon: Code2, title: 'Esnek', desc: 'JSON tabanlı API, tüm programlama dilleriyle uyumludur.' },
+  {
+    icon: Zap,
+    title: 'Hızlı Entegrasyon',
+    desc: 'REST API ile dakikalar içinde entegre olun. Kapsamlı dokümantasyon ve örnek kodlar hazır.',
+  },
+  {
+    icon: Shield,
+    title: 'Güvenli',
+    desc: 'JWT kimlik doğrulama ve HTTPS şifreleme ile güvenli veri iletimi sağlanır.',
+  },
+  {
+    icon: Clock,
+    title: 'Gerçek Zamanlı',
+    desc: 'Webhook desteği ile sipariş durum güncellemelerini anında sisteminize alın.',
+  },
+  {
+    icon: Code2,
+    title: 'Esnek',
+    desc: 'JSON tabanlı API yapısı farklı yazılım dilleri ve platformlarla uyumludur.',
+  },
 ]
 
 const codeExample = `// Sipariş oluştur
@@ -51,15 +69,16 @@ export default function EntegrasyonPage() {
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#c8860a' }}>API Entegrasyonu</span>
           </div>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#fff', marginBottom: 20, lineHeight: 1.1 }}>
-            Prime Kurye'yi<br />
+            Prime Kurye'yi
+            <br />
             <span style={{ color: '#c8860a' }}>Sisteminize Entegre Edin</span>
           </h1>
           <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, maxWidth: 560, margin: '0 auto 32px' }}>
-            E-ticaret sitenize, muhasebe yazılımınıza veya herhangi bir platforma REST API ile kurye hizmetimizi entegre edin.
+            E-ticaret sitenize, muhasebe yazılımınıza veya özel operasyon panelinize REST API ile kurye hizmetimizi entegre edin.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/api-docs" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#c8860a', color: '#1c0800', borderRadius: 8, textDecoration: 'none', fontWeight: 800, fontSize: '0.95rem' }}>
-              API Dökümantasyon <ExternalLink size={16} />
+            <Link href={docsNoticeHref} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#c8860a', color: '#1c0800', borderRadius: 8, textDecoration: 'none', fontWeight: 800, fontSize: '0.95rem' }}>
+              API Dokümantasyonu <ExternalLink size={16} />
             </Link>
             <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 24px', background: 'rgba(255,255,255,0.10)', color: '#fff', borderRadius: 8, textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>
               Bize Ulaşın
@@ -69,23 +88,21 @@ export default function EntegrasyonPage() {
       </div>
 
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '64px 24px 80px' }}>
-
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 56 }}>
-          {features.map(f => {
-            const Icon = f.icon
+          {features.map((feature) => {
+            const Icon = feature.icon
             return (
-              <div key={f.title} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', padding: '22px 20px' }}>
+              <div key={feature.title} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', padding: '22px 20px' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 8, background: '#fef8ed', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                   <Icon size={18} color="#c8860a" />
                 </div>
-                <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1c0800', marginBottom: 6 }}>{f.title}</h3>
-                <p style={{ fontSize: '0.82rem', color: '#7a6050', lineHeight: 1.65 }}>{f.desc}</p>
+                <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1c0800', marginBottom: 6 }}>{feature.title}</h3>
+                <p style={{ fontSize: '0.82rem', color: '#7a6050', lineHeight: 1.65 }}>{feature.desc}</p>
               </div>
             )
           })}
         </div>
 
-        {/* Kod örneği */}
         <div style={{ marginBottom: 48 }}>
           <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.5rem', color: '#1c0800', marginBottom: 20 }}>
             Örnek Kullanım
@@ -103,17 +120,16 @@ export default function EntegrasyonPage() {
           </div>
         </div>
 
-        {/* Adımlar */}
         <div style={{ marginBottom: 48 }}>
           <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.5rem', color: '#1c0800', marginBottom: 20 }}>
             3 Adımda Başlayın
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
-              { num: '1', title: 'Hesap Oluşturun', desc: 'İşletme hesabı açın ve API anahtarınızı alın.', href: '/kayit', btn: 'Kayıt Ol' },
-              { num: '2', title: 'Dökümantasyonu İnceleyin', desc: 'API referansımızı okuyun ve test ortamında deneyin.', href: '/api-docs', btn: 'Dökümantasyon' },
-              { num: '3', title: 'Entegre Edin', desc: 'Sisteminize ekleyin ve canlı ortama geçin.', href: '/iletisim', btn: 'Destek Al' },
-            ].map(step => (
+              { num: '1', title: 'Hesap Oluşturun', desc: 'İşletme hesabı açın ve API erişimi için bizimle iletişime geçin.', href: '/kayit', btn: 'Kayıt Ol' },
+              { num: '2', title: 'Dokümantasyonu İnceleyin', desc: 'API erişimi kurumsal müşterilerimize özel olarak paylaşılır.', href: docsNoticeHref, btn: 'Bilgilendirme' },
+              { num: '3', title: 'Entegre Edin', desc: 'Teknik ekibinizle birlikte canlı ortam kurulumunu tamamlayın.', href: '/iletisim', btn: 'Destek Al' },
+            ].map((step) => (
               <div key={step.num} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: 18 }}>
                 <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#c8860a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: '#1c0800' }}>{step.num}</span>
@@ -129,7 +145,6 @@ export default function EntegrasyonPage() {
             ))}
           </div>
         </div>
-
       </main>
 
       <Footer />

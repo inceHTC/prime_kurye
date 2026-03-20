@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Zap, ArrowRight } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Zap } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { authService } from '@/lib/authService'
 import { useAuthStore } from '@/store/authStore'
@@ -21,6 +21,8 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect')
   const { setAuth } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -35,20 +37,26 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
+
     try {
-      const res = await authService.login(data)
-      if (res.success) {
-        setAuth(res.data.user, res.data.accessToken, res.data.refreshToken)
-        toast.success('Hoş geldiniz!')
-        // Role göre yönlendir
-        const role = res.data.user.role
+      const response = await authService.login(data)
+
+      if (response.success) {
+        setAuth(response.data.user, response.data.accessToken, response.data.refreshToken)
+        toast.success('Hoş geldiniz')
+
+        if (redirect) {
+          router.push(redirect)
+          return
+        }
+
+        const role = response.data.user.role
         if (role === 'ADMIN') router.push('/admin')
         else if (role === 'COURIER') router.push('/kurye')
         else router.push('/dashboard')
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Giriş başarısız'
-      toast.error(message)
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Giriş başarısız')
     } finally {
       setIsLoading(false)
     }
@@ -56,7 +64,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
       <header className="p-4 md:p-6">
         <Link href="/" className="flex items-center gap-2 w-fit">
           <div className="w-8 h-8 bg-gradient-brand rounded-lg flex items-center justify-center shadow-brand">
@@ -68,18 +75,17 @@ export default function LoginPage() {
         </Link>
       </header>
 
-      {/* Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
           <div className="card p-6 md:p-8">
-            {/* Başlık */}
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-dark-900 mb-2">Tekrar hoş geldiniz</h1>
-              <p className="text-dark-500 text-sm">Hesabınıza giriş yapın</p>
+              <p className="text-dark-500 text-sm">
+                {redirect ? 'Devam etmek için hesabınıza giriş yapın' : 'Hesabınıza giriş yapın'}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Email */}
               <div>
                 <label className="label">E-posta</label>
                 <input
@@ -89,19 +95,13 @@ export default function LoginPage() {
                   className={cn('input', errors.email && 'input-error')}
                   autoComplete="email"
                 />
-                {errors.email && (
-                  <p className="error-message">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="error-message">{errors.email.message}</p>}
               </div>
 
-              {/* Şifre */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="label mb-0">Şifre</label>
-                  <Link
-                    href="/sifremi-unuttum"
-                    className="text-xs text-brand-500 hover:text-brand-600 font-medium"
-                  >
+                  <Link href="/sifremi-unuttum" className="text-xs text-brand-500 hover:text-brand-600 font-medium">
                     Şifremi unuttum
                   </Link>
                 </div>
@@ -115,26 +115,16 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword((current) => !current)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword
-                      ? <EyeOff className="w-4 h-4" />
-                      : <Eye className="w-4 h-4" />
-                    }
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="error-message">{errors.password.message}</p>
-                )}
+                {errors.password && <p className="error-message">{errors.password.message}</p>}
               </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="btn-primary w-full justify-center mt-2"
-              >
+              <button type="submit" disabled={isLoading} className="btn-primary w-full justify-center mt-2">
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -152,10 +142,12 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Kayıt ol linki */}
             <p className="text-center text-sm text-dark-500 mt-6">
               Hesabınız yok mu?{' '}
-              <Link href="/kayit" className="text-brand-500 hover:text-brand-600 font-semibold">
+              <Link
+                href={redirect ? `/kayit?redirect=${encodeURIComponent(redirect)}` : '/kayit'}
+                className="text-brand-500 hover:text-brand-600 font-semibold"
+              >
                 Ücretsiz kayıt olun
               </Link>
             </p>

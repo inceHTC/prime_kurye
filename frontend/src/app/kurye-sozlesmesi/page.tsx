@@ -78,7 +78,7 @@ export default function KuryeSozlesmesiPage() {
               <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <li>Siparişleri adil ve şeffaf şekilde dağıtmak</li>
                 <li>Kurye kazançlarını haftada bir banka hesabına aktarmak</li>
-                <li>30.000₺ kargo kayıp/hasar sigortası sağlamak</li>
+                <li>10.000₺ kargo kayıp/hasar sigortası sağlamak</li>
                 <li>Kurye desteği ve eğitim materyali sunmak</li>
                 <li>Kurye kişisel verilerini korumak</li>
               </ul>

@@ -14,7 +14,7 @@ import api from '@/lib/api'
 const benefits = [
   { icon: TrendingUp, title: 'Yüksek Kazanç', desc: 'Her teslimat başına %80 pay alırsın. Haftalık ödeme garantisi.' },
   { icon: Clock, title: 'Esnek Çalışma', desc: 'İstediğin saatte çalış, istediğinde mola ver. Tamamen özgürsün.' },
-  { icon: Shield, title: 'Sigorta Güvencesi', desc: 'Tüm teslimatlar 30.000₺ kargo sigortası kapsamındadır.' },
+  { icon: Shield, title: 'Sigorta Güvencesi', desc: 'Tüm teslimatlar 10.000₺ kargo sigortası kapsamındadır.' },
   { icon: Bike, title: 'Kolay Kullanım', desc: 'Uygulama üzerinden siparişleri gör, kabul et, teslim et.' },
 ]
 

@@ -99,7 +99,7 @@ export default function SartlarPage() {
 
           <Section title="6. Sorumluluk Sınırları">
             <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <li>Platform, kargo kayıp/hasarı için 30.000₺'ye kadar sigorta güvencesi sunar.</li>
+              <li>Platform, kargo kayıp/hasarı için 10.000₺'ye kadar sigorta güvencesi sunar.</li>
               <li>Yanlış beyan edilen paket içeriğinden doğan hasarlar sigorta kapsamı dışındadır.</li>
               <li>Mücbir sebep durumlarında (deprem, sel, salgın vb.) platform sorumlu tutulamaz.</li>
               <li>Platform, teslimat süresinin aşılmasından dolayı oluşan dolaylı zararlardan sorumlu değildir.</li>

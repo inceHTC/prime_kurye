@@ -5,17 +5,16 @@ import Link from 'next/link'
 
 const cols = {
   'Hizmetler': [
-    { label: 'Ekspres Teslimat', href: '#hizmetler' },
-    { label: 'Aynı Gün Teslimat', href: '#hizmetler' },
-    { label: 'Planlanmış Teslimat', href: '#hizmetler' },
+ 
     { label: 'API Entegrasyonu', href: '/entegrasyon' },
     { label: 'İşletme Hesabı', href: '/kayit' },
+    { label: 'Paket Sigortası', href: '/sigorta' },
   ],
   'İşlemler': [
     { label: 'Nasıl Çalışır?', href: '#nasil-calisir' },
     { label: 'Fiyat Hesapla', href: '/hesapla' },
     { label: 'Gönderi Takip', href: '/takip' },
-    { label: 'Paket Sigortası', href: '/sigorta' },
+    
     { label: 'SSS', href: '/sss' },
   ],
   'Kurumsal': [
@@ -46,7 +45,7 @@ export function Footer() {
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             {['App Store', 'Google Play'].map(store => (
-              <a key={store} href="#" style={{
+              <Link key={store} href="/mobil-uygulama" style={{
                 background: '#1c0800', color: '#fff',
                 padding: '9px 18px', borderRadius: 6,
                 fontSize: '0.82rem', fontWeight: 700,
@@ -54,7 +53,7 @@ export function Footer() {
                 fontFamily: "'Barlow', sans-serif",
               }}>
                 {store}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

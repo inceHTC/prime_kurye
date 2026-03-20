@@ -125,6 +125,25 @@ export function generateTrackingCode(): string {
   return `${prefix}${timestamp}${random}`
 }
 
+const TRACKING_CODE_ALLOWED = /[^A-Z0-9]/g
+const TRACKING_CODE_FORMAT = /^PK[A-Z0-9]{6,16}$/
+
+export function normalizeTrackingCode(value: string): string {
+  const cleaned = value.toUpperCase().replace(TRACKING_CODE_ALLOWED, '')
+  if (!cleaned) return ''
+
+  if (cleaned.startsWith('PK')) {
+    return cleaned.slice(0, 18)
+  }
+
+  const withoutLeadingNoise = cleaned.replace(/^P+K?/, '')
+  return `PK${withoutLeadingNoise}`.slice(0, 18)
+}
+
+export function isValidTrackingCode(value: string): boolean {
+  return TRACKING_CODE_FORMAT.test(normalizeTrackingCode(value))
+}
+
 // --- Truncate text ---
 export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str

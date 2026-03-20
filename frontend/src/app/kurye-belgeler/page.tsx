@@ -284,7 +284,7 @@ export default function KuryeBelgelerPage() {
                 {[
                   { icon: '💰', text: 'Her teslimat ücretinin %80\'ini alırsınız' },
                   { icon: '📅', text: 'Haftalık ödeme — her Pazartesi banka hesabınıza' },
-                  { icon: '🛡️', text: '30.000₺ kargo kayıp/hasar sigortası' },
+                  { icon: '🛡️', text: '10.000₺ kargo kayıp/hasar sigortası' },
                   { icon: '⚖️', text: 'Bağımsız çalışan statüsü — vergi kendi sorumluluğunuzda' },
                   { icon: '🔒', text: 'Müşteri bilgilerini gizli tutma yükümlülüğü (KVKK)' },
                   { icon: '🏍️', text: 'Trafik kurallarına uyma zorunluluğu' },

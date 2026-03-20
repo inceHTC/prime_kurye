@@ -213,7 +213,7 @@ export function FeaturesSection() {
     { icon: '💳', title: 'Online Ödeme', desc: 'Kredi kartı veya banka kartı ile güvenli ödeme. Her işlem için otomatik makbuz.' },
     { icon: '📊', title: 'Detaylı Raporlar', desc: 'Sipariş geçmişi, teslimat süreleri ve harcama analizi. Excel/PDF export.' },
     { icon: '🎧', title: 'Destek Hattı', desc: 'Hafta içi 08:00–19:00, hafta sonu 09:00–18:00. WhatsApp ve telefon desteği.' },
-    { icon: '🛡️', title: '30.000₺ Güvence', desc: 'Paket sigortası her siparişte dahil. Hasar ya da kayıpta tam tazminat.' },
+    { icon: '🛡️', title: '10.000₺ Güvence', desc: 'Paket sigortası her siparişte dahil. Hasar ya da kayıpta tam tazminat.' },
   ]
 
   return (
@@ -221,25 +221,25 @@ export function FeaturesSection() {
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
         <div style={{ textAlign: 'center', marginBottom: 60 }}>
-  <div style={{
-    display: 'inline-block', background: '#fef8ed', color: '#c8860a',
-    fontFamily: "'Barlow', sans-serif", fontWeight: 700,
-    fontSize: '0.75rem', letterSpacing: '0.1em',
-    padding: '5px 12px', borderRadius: 4, marginBottom: 14,
-    border: '1px solid rgba(200,134,10,0.20)',
-  }}>
-    Neden Prime Kurye?
-  </div>
-  <h2 style={{
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontSize: 'clamp(32px, 4vw, 48px)',
-    fontWeight: 700,
-    color: '#1c0800',
-    lineHeight: 1.2,
-  }}>
-    Her Detayı Düşündük,<br />Farkı Hissedeceksiniz
-  </h2>
-</div>
+          <div style={{
+            display: 'inline-block', background: '#fef8ed', color: '#c8860a',
+            fontFamily: "'Barlow', sans-serif", fontWeight: 700,
+            fontSize: '0.75rem', letterSpacing: '0.1em',
+            padding: '5px 12px', borderRadius: 4, marginBottom: 14,
+            border: '1px solid rgba(200,134,10,0.20)',
+          }}>
+            Neden Prime Kurye?
+          </div>
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            fontWeight: 700,
+            color: '#1c0800',
+            lineHeight: 1.2,
+          }}>
+            Her Detayı Düşündük,<br />Farkı Hissedeceksiniz
+          </h2>
+        </div>
         <div className="features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, background: 'rgba(28,8,0,0.06)', borderRadius: 12, overflow: 'hidden' }}>
           {features.map(f => (
             <div
@@ -484,15 +484,15 @@ export function CtaSection() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(28,8,0,0.95) 0%, rgba(28,8,0,0.75) 100%)' }} />
 
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 24px', position: 'relative', zIndex: 1, textAlign: 'center', width: '100%' }}>
-        <h2 style={{
-  fontFamily: "'Barlow Condensed', sans-serif",
-  fontSize: 'clamp(32px, 4vw, 56px)',
-  fontWeight: 700,
-  color: '#fff', marginBottom: 16, lineHeight: 1.2,
-}}>
-  Bugün Başlayın,{' '} <br />
-  <span style={{ color: '#c8860a' }}>İlk Siparişe %20 İndirim</span>
-</h2>
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: 'clamp(32px, 4vw, 56px)',
+            fontWeight: 700,
+            color: '#fff', marginBottom: 16, lineHeight: 1.2,
+          }}>
+            Bugün Başlayın,{' '} <br />
+            <span style={{ color: '#c8860a' }}>İlk Siparişe %20 İndirim</span>
+          </h2>
           <p style={{
             fontFamily: "'Barlow', sans-serif",
             fontSize: '1.0625rem', color: 'rgba(255,255,255,0.60)',

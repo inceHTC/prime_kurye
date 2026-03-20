@@ -22,7 +22,7 @@ export default function SigortaPage() {
           Paket Sigortası
         </h1>
         <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.50)', maxWidth: 480, margin: '0 auto' }}>
-          Tüm gönderileriniz 30.000₺'ye kadar sigorta güvencesi altında.
+          Tüm gönderileriniz 10.000₺'ye kadar sigorta güvencesi altında.
         </p>
       </div>
 
@@ -31,7 +31,7 @@ export default function SigortaPage() {
         {/* Ana kart */}
         <div style={{ background: '#fff', borderRadius: 16, border: '2px solid rgba(200,134,10,0.25)', padding: '32px 28px', marginBottom: 24, textAlign: 'center' }}>
           <p style={{ fontSize: '0.82rem', color: '#a89080', marginBottom: 8, fontWeight: 600 }}>SİGORTA LİMİTİ</p>
-          <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '3rem', color: '#c8860a', lineHeight: 1, marginBottom: 8 }}>30.000₺</p>
+          <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '3rem', color: '#c8860a', lineHeight: 1, marginBottom: 8 }}>10.000₺</p>
           <p style={{ fontSize: '0.875rem', color: '#7a6050' }}>Her teslimat için otomatik sigorta</p>
         </div>
 
