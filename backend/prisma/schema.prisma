@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// ENUM'LAR
+// ================================
+enum UserRole {
+  INDIVIDUAL
+  BUSINESS
+  COURIER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PICKING_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+  FAILED
+}
+
+enum DeliveryType {
+  EXPRESS
+  SAME_DAY
+  SCHEDULED
+}
+
+enum VehicleType {
+  MOTORCYCLE
+  CAR
+  BICYCLE
+}
+
+enum EscrowStatus {
+  PENDING      // ödeme bekleniyor
+  HELD         // para havuzda bekliyor
+  RELEASED     // sisteme aktarıldı
+  REFUNDED     // iade edildi
+}
+
+enum PayoutStatus {
+  PENDING      // hesaplanmış, ödenmemiş
+  PROCESSING   // işlemde
+  PAID         // ödendi
+  FAILED       // başarısız
+}
+
+// ================================
+// KULLANICI
+// ================================
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  phone         String   @unique
+  fullName      String
+  password      String
+  role          UserRole @default(BUSINESS)
+  avatar        String?
+  isVerified    Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  business      Business?
+  courier       Courier?
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+// ================================
+// İŞLETME
+// ================================
+model Business {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  companyName String
+  taxNumber   String?
+  address     String?
+  balance     Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders      Order[]
+
+  @@map("businesses")
+}
+
+// ================================
+// KURYE
+// ================================
+model Courier {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  vehicle         VehicleType @default(MOTORCYCLE)
+  plateNumber     String?
+  isOnline        Boolean     @default(false)
+  isApproved      Boolean     @default(false)
+  currentLat      Float?
+  currentLng      Float?
+  locationUpdated DateTime?
+  rating          Float       @default(0)
+  totalDeliveries Int         @default(0)
+  balance         Float       @default(0)  // toplam birikim
+  weeklyEarnings  Float       @default(0)  // bu haftaki kazanç
+  totalEarnings   Float       @default(0)  // toplam kazanç
+  pendingPayout   Float       @default(0)  // çekilmeyi bekleyen para
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  // Belgeler
+  identityDoc          String?   // Kimlik belgesi
+  licenseDoc           String?   // Ehliyet
+  vehicleDoc           String?   // Araç ruhsatı
+  criminalRecord       String?   // Sabıka kaydı
+  documentsSubmitted   Boolean   @default(false)
+  documentsSubmittedAt DateTime?
+
+  // Sözleşme
+  contractSigned       Boolean   @default(false)
+  contractSignedAt     DateTime?
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders          Order[]
+  payouts         Payout[]
+
+  @@map("couriers")
+}
+
+// ================================
+// SİPARİŞ
+// ================================
+model Order {
+  id               String       @id @default(cuid())
+  trackingCode     String       @unique
+  status           OrderStatus  @default(PENDING)
+  deliveryType     DeliveryType @default(EXPRESS)
+  vehicle          VehicleType  @default(MOTORCYCLE)
+
+  // Gönderici
+  senderName       String
+  senderPhone      String
+  senderAddress    String
+  senderLat        Float
+  senderLng        Float
+  senderNotes      String?
+
+  // Alıcı
+  recipientName    String
+  recipientPhone   String
+  recipientAddress String
+  recipientLat     Float
+  recipientLng     Float
+  recipientNotes   String?
+
+  // Paket
+  packageDesc      String
+  packageWeight    Float    @default(1)
+  isFragile        Boolean  @default(false)
+  packageValue     Float?
+
+  // Fiyat
+  price            Float
+  insuranceValue   Float?
+  isPaid           Boolean  @default(false)
+
+  // Kurye eşleştirme
+  assignedAt           DateTime?
+  assignmentAttempts   Int       @default(0)
+  pendingCourierIds    String[]
+  rejectedCourierIds   String[]
+  cancelReason         String?
+  deliveryProofUrl     String?
+  autoConfirmedAt      DateTime?
+
+  // Escrow sistemi
+  escrowAmount     Float?          // havuzdaki para miktarı
+  escrowStatus     EscrowStatus    @default(PENDING)
+  paidAt           DateTime?       // müşteri ödeme yaptığı an
+  confirmedAt      DateTime?       // alıcı teslimi onayladığı an
+
+  // Komisyon hesabı
+  commissionRate   Float    @default(0.20)  // %20 sistem komisyonu
+  commissionAmount Float?                   // komisyon tutarı
+  courierAmount    Float?                   // kuryeye giden tutar
+  taxAmount        Float?                   // vergi tutarı
+
+  // Zaman
+  scheduledAt      DateTime?
+  pickedUpAt       DateTime?
+  deliveredAt      DateTime?
+  estimatedAt      DateTime?
+
+  // İlişkiler
+  businessId       String
+  courierId        String?
+  business         Business  @relation(fields: [businessId], references: [id])
+  courier          Courier?  @relation(fields: [courierId], references: [id])
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("orders")
+}
+
+// ================================
+// HAFTALIK ÖDEME (KURYE)
+// ================================
+model Payout {
+  id            String       @id @default(cuid())
+  courierId     String
+  amount        Float        // toplam kazanç
+  commission    Float        // sistem komisyonu düşüldü
+  tax           Float        // vergi düşüldü
+  netAmount     Float        // kuryeye giden net tutar
+  status        PayoutStatus @default(PENDING)
+  weekStart     DateTime     // hafta başlangıcı
+  weekEnd       DateTime     // hafta sonu
+  paidAt        DateTime?    // ödeme yapıldığı tarih
+  bankName      String?      // banka adı
+  iban          String?      // IBAN
+  note          String?      // admin notu
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  courier       Courier      @relation(fields: [courierId], references: [id])
+
+  @@map("payouts")
+}
+
+// ================================
+// REFRESH TOKEN
+// ================================
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
