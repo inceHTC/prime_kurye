@@ -1,6 +1,6 @@
 'use client'
 
-import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useMemo, useState } from 'react'
+import { Suspense, type Dispatch, type ReactNode, type SetStateAction, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -93,7 +93,7 @@ const createDefaultForm = (userName = ''): OrderFormState => ({
   insuranceValue: 0,
 })
 
-export default function SiparisPage() {
+function SiparisContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { accessToken, user } = useAuthStore()
@@ -612,6 +612,20 @@ export default function SiparisPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SiparisPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        </div>
+      }
+    >
+      <SiparisContent />
+    </Suspense>
   )
 }
 
