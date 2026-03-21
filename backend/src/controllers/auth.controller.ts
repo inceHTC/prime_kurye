@@ -17,7 +17,7 @@ if (!errors.isEmpty()) {
     errors: errors.array() 
   })
 }
-    const { email, phone, fullName, password, role, companyName } = req.body
+    const { email, phone, fullName, password, role, companyName, taxNumber } = req.body
     const existing = await prisma.user.findFirst({
       where: { OR: [{ email }, { phone }] },
     })
@@ -33,7 +33,7 @@ if (!errors.isEmpty()) {
         role: role || 'INDIVIDUAL',
         ...(role === 'COURIER'
           ? { courier: { create: {} } }
-          : { business: { create: { companyName: companyName || fullName } } }
+          : { business: { create: { companyName: companyName || fullName, taxNumber: taxNumber || null } } }
         ),
       },
       select: { id: true, email: true, phone: true, fullName: true, role: true, createdAt: true },

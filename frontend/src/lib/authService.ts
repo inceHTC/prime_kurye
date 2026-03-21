@@ -7,6 +7,7 @@ export interface RegisterData {
   password: string
   role: 'INDIVIDUAL' | 'BUSINESS' | 'COURIER'
   companyName?: string
+  taxNumber?: string
 }
 
 export interface LoginData {
