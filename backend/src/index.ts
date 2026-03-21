@@ -23,10 +23,38 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 4000
+const allowedOrigins = new Set(
+  [
+    'http://localhost:3000',
+    process.env.CLIENT_URL,
+    ...(process.env.CLIENT_URLS?.split(',') ?? []),
+  ]
+    .map((origin) => origin?.trim())
+    .filter(Boolean) as string[]
+)
+
+const isAllowedOrigin = (origin?: string) => {
+  if (!origin) {
+    return true
+  }
+
+  if (allowedOrigins.has(origin)) {
+    return true
+  }
+
+  return /^https:\/\/prime-kurye(?:-[a-z0-9-]+)?\.vercel\.app$/i.test(origin)
+}
 
 app.use(helmet())
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true)
+      return
+    }
+
+    callback(new Error('CORS origin not allowed'))
+  },
   credentials: true,
 }))
 app.use(morgan('dev'))

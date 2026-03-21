@@ -19,7 +19,7 @@ const registerValidation = [
         .withMessage('Şifre en az 8 karakter olmalı'),
     (0, express_validator_1.body)('role')
         .optional()
-        .isIn(['BUSINESS', 'COURIER'])
+        .isIn(['INDIVIDUAL', 'BUSINESS', 'COURIER'])
         .withMessage('Geçersiz rol'),
 ];
 const loginValidation = [

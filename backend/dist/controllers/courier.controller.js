@@ -29,6 +29,7 @@ async function getCourierOrders(req, res) {
             where: {
                 status: 'CONFIRMED',
                 courierId: null,
+                pendingCourierIds: { has: courier.id },
             },
             orderBy: { createdAt: 'asc' },
             take: 5,

@@ -18,13 +18,37 @@ const user_routes_1 = __importDefault(require("./routes/user.routes"));
 const payment_routes_1 = __importDefault(require("./routes/payment.routes"));
 const escrow_routes_1 = __importDefault(require("./routes/escrow.routes"));
 const report_routes_1 = __importDefault(require("./routes/report.routes"));
-const courier_doc_routes_1 = __importDefault(require("./routes/courier-doc.routes"));
+const courierDoc_routes_1 = __importDefault(require("./routes/courierDoc.routes"));
+const cron_service_1 = require("./services/cron.service");
+// app.listen'den sonra:
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 4000;
+const allowedOrigins = new Set([
+    'http://localhost:3000',
+    process.env.CLIENT_URL,
+    ...(process.env.CLIENT_URLS?.split(',') ?? []),
+]
+    .map((origin) => origin?.trim())
+    .filter(Boolean));
+const isAllowedOrigin = (origin) => {
+    if (!origin) {
+        return true;
+    }
+    if (allowedOrigins.has(origin)) {
+        return true;
+    }
+    return /^https:\/\/prime-kurye(?:-[a-z0-9-]+)?\.vercel\.app$/i.test(origin);
+};
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+        if (isAllowedOrigin(origin)) {
+            callback(null, true);
+            return;
+        }
+        callback(new Error('CORS origin not allowed'));
+    },
     credentials: true,
 }));
 app.use((0, morgan_1.default)('dev'));
@@ -39,8 +63,9 @@ app.use('/api/users', user_routes_1.default);
 app.use('/api/payments', payment_routes_1.default);
 app.use('/api/escrow', escrow_routes_1.default);
 app.use('/api/reports', report_routes_1.default);
-app.use('/api/courier-docs', courier_doc_routes_1.default);
+app.use('/api/courier-docs', courierDoc_routes_1.default);
 app.use('/uploads', express_1.default.static(path_1.default.join(process.cwd(), 'uploads')));
+app.use('/api/courier-docs', courierDoc_routes_1.default);
 app.get('/health', (_, res) => {
     res.json({ status: 'ok', message: 'Prime Kurye API calisiyor', timestamp: new Date() });
 });
@@ -48,6 +73,7 @@ app.use((_, res) => {
     res.status(404).json({ success: false, message: 'Endpoint bulunamadi' });
 });
 app.listen(PORT, () => {
+    (0, cron_service_1.startCronJobs)();
     console.log(`
   Prime Kurye API
   ---------------------
