@@ -52,8 +52,15 @@ export default function AdminPage() {
   const [orderFilter, setOrderFilter] = useState('ALL')
   const [isCalculating, setIsCalculating] = useState(false)
 
-if (!accessToken) { router.push('/admin/giris'); return }
-if (user?.role !== 'ADMIN') { router.push('/admin/giris'); return }
+  useEffect(() => {
+    if (!accessToken || (user && user.role !== 'ADMIN')) {
+      router.push('/admin/giris')
+    }
+  }, [accessToken, router, user])
+
+  if (!accessToken || !user || user.role !== 'ADMIN') {
+    return null
+  }
 
   useEffect(() => {
     fetchTabData()
@@ -155,8 +162,6 @@ if (user?.role !== 'ADMIN') { router.push('/admin/giris'); return }
       toast.success('Ayarlar kaydedildi!')
     } catch { toast.error('Kayıt başarısız') }
   }
-
-  if (!user) return null
 
   const navItems = [
     { id: 'dashboard', label: 'Genel Bakış', icon: BarChart2 },
