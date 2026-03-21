@@ -26,8 +26,8 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "Prime Kurye — İstanbul'un En Hızlı Motokurye Hizmeti",
-    template: '%s | Prime Kurye',
+    default: "Vın Kurye — İstanbul'un En Hızlı Motokurye Hizmeti",
+    template: '%s | Vın Kurye',
   },
   description:
     "İstanbul'da bireyler ve işletmeler için motokurye hizmeti. 60-90 dakikada teslim, gerçek zamanlı takip, %99.9 başarı oranı. Hemen kurye çağır!",
@@ -36,28 +36,28 @@ export const metadata: Metadata = {
     'aynı gün teslimat', 'kurye çağır', 'prime kurye', 'hızlı teslimat',
     'istanbul motokurye', 'işletme kurye', 'paket gönder istanbul',
   ],
-  authors: [{ name: 'Prime Kurye' }],
-  creator: 'Prime Kurye',
-  publisher: 'Prime Kurye',
+  authors: [{ name: 'Vın Kurye' }],
+  creator: 'Vın Kurye',
+  publisher: 'Vın Kurye',
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
     url: APP_URL,
-    siteName: 'Prime Kurye',
-    title: "Prime Kurye — İstanbul'un En Hızlı Motokurye Hizmeti",
+    siteName: 'Vın Kurye',
+    title: "Vın Kurye — İstanbul'un En Hızlı Motokurye Hizmeti",
     description: "60-90 dakikada teslim, gerçek zamanlı takip, %99.9 başarı oranı.",
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Prime Kurye',
+        alt: 'Vın Kurye',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Prime Kurye — İstanbul'un En Hızlı Motokurye Hizmeti",
+    title: "Vın Kurye — İstanbul'un En Hızlı Motokurye Hizmeti",
     description: "60-90 dakikada teslim, gerçek zamanlı takip, %99.9 başarı oranı.",
     images: ['/og-image.png'],
   },
@@ -90,7 +90,7 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className={`${barlow.className} ${barlowCondensed.variable} m-0 p-0`}>
-        
+
         {children}
 
         {/* ✅ JSON-LD (SEO) */}
@@ -102,7 +102,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'LocalBusiness',
-              name: 'Prime Kurye',
+              name: 'Vın Kurye',
               url: APP_URL,
               telephone: '+902121234567',
               address: {

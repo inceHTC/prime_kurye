@@ -52,11 +52,11 @@ export default function KuryeSozlesmesiPage() {
           <div style={{ fontSize: '0.9rem', color: '#4a3020', lineHeight: 1.85 }}>
 
             <Section title="1. TARAFLAR">
-              <p>İşbu Kurye Hizmet Sözleşmesi ("Sözleşme"), aşağıda "Platform" olarak anılacak Prime Kurye ile kurye olarak başvuran kişi ("Kurye") arasında akdedilmiştir.</p>
+              <p>İşbu Kurye Hizmet Sözleşmesi ("Sözleşme"), aşağıda "Platform" olarak anılacak Vın Kurye ile kurye olarak başvuran kişi ("Kurye") arasında akdedilmiştir.</p>
             </Section>
 
             <Section title="2. SÖZLEŞMENİN KONUSU">
-              <p>Bu Sözleşme, Kurye'nin Prime Kurye platformu üzerinden sunulan kurye hizmetlerini gerçekleştirmesine ilişkin hak ve yükümlülükleri düzenlemektedir. Kurye, Platform üzerinden gelen siparişleri kabul ederek, belirtilen adresten paketi alıp teslimat adresine ulaştırmayı taahhüt eder.</p>
+              <p>Bu Sözleşme, Kurye'nin Vın Kurye platformu üzerinden sunulan kurye hizmetlerini gerçekleştirmesine ilişkin hak ve yükümlülükleri düzenlemektedir. Kurye, Platform üzerinden gelen siparişleri kabul ederek, belirtilen adresten paketi alıp teslimat adresine ulaştırmayı taahhüt eder.</p>
             </Section>
 
             <Section title="3. KURYE'NİN YÜKÜMLÜLÜKLERİ">
@@ -125,7 +125,7 @@ export default function KuryeSozlesmesiPage() {
 
           {/* İletişim */}
           <div style={{ marginTop: 32, padding: '16px 20px', background: '#faf9f7', borderRadius: 10, fontSize: '0.82rem', color: '#a89080' }}>
-            <strong style={{ color: '#4a3020' }}>İletişim:</strong> Prime Kurye · destek@primekurye.com · +90 212 123 45 67
+            <strong style={{ color: '#4a3020' }}>İletişim:</strong> Vın Kurye · destek@primekurye.com · +90 212 123 45 67
           </div>
         </div>
 

@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 const cols = {
   'Hizmetler': [
- 
+
     { label: 'API Entegrasyonu', href: '/entegrasyon' },
     { label: 'İşletme Hesabı', href: '/kayit' },
     { label: 'Paket Sigortası', href: '/sigorta' },
@@ -14,7 +14,7 @@ const cols = {
     { label: 'Nasıl Çalışır?', href: '#nasil-calisir' },
     { label: 'Fiyat Hesapla', href: '/hesapla' },
     { label: 'Gönderi Takip', href: '/takip' },
-    
+
     { label: 'SSS', href: '/sss' },
   ],
   'Kurumsal': [
@@ -38,7 +38,7 @@ export function Footer() {
       <div style={{ background: '#c8860a', padding: '20px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: '#1c0800',  }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: '#1c0800', }}>
               Uygulamayı İndirin
             </span>
             <span style={{ fontSize: '0.85rem', color: 'rgba(28,8,0,0.65)' }}>iOS ve Android</span>
@@ -73,9 +73,9 @@ export function Footer() {
               </div>
               <div>
                 <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: '#fff', lineHeight: 1 }}>
-                  PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+                  VIN<span style={{ color: '#c8860a' }}>KURYE</span>
                 </div>
-                <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em',  marginTop: 2 }}>
+                <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', marginTop: 2 }}>
                   Motokurye Hizmeti
                 </div>
               </div>
@@ -93,7 +93,7 @@ export function Footer() {
           {/* Kolonlar */}
           {Object.entries(cols).map(([title, items]) => (
             <div key={title}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.60)', letterSpacing: '0.08em',  marginBottom: 16 }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.60)', letterSpacing: '0.08em', marginBottom: 16 }}>
                 {title}
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -115,7 +115,7 @@ export function Footer() {
         {/* Alt çizgi */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.30)' }}>
-            © {new Date().getFullYear()} Prime Kurye. Tüm hakları saklıdır.
+            © {new Date().getFullYear()} Vın Kurye. Tüm hakları saklıdır.
           </p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Gizlilik', 'Şartlar', 'Çerez'].map(l => (

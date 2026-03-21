@@ -13,8 +13,8 @@ const categories = [
     icon: '💡',
     questions: [
       {
-        q: 'Prime Kurye nedir?',
-        a: 'Prime Kurye, İstanbul genelinde bireyler ve işletmeler için motokurye hizmeti sunan bir platformdur. Sipariş oluşturur, en yakın kuryemizi atarız ve paketiniz 60-90 dakika içinde teslim edilir.',
+        q: 'Vın Kurye nedir?',
+        a: 'Vın Kurye, İstanbul genelinde bireyler ve işletmeler için motokurye hizmeti sunan bir platformdur. Sipariş oluşturur, en yakın kuryemizi atarız ve paketiniz 60-90 dakika içinde teslim edilir.',
       },
       {
         q: 'Hizmet bölgeniz neresi?',
@@ -158,9 +158,9 @@ export default function SSSPage() {
 
   const activeQuestions = search
     ? categories.flatMap(c => c.questions).filter(q =>
-        q.q.toLowerCase().includes(search.toLowerCase()) ||
-        q.a.toLowerCase().includes(search.toLowerCase())
-      )
+      q.q.toLowerCase().includes(search.toLowerCase()) ||
+      q.a.toLowerCase().includes(search.toLowerCase())
+    )
     : categories.find(c => c.id === activeCategory)?.questions || []
 
   return (

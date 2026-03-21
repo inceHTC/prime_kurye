@@ -45,11 +45,11 @@ export default function SartlarPage() {
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(28,8,0,0.08)', padding: '40px 36px' }}>
 
           <p style={{ fontSize: '0.9rem', color: '#7a6050', lineHeight: 1.85, marginBottom: 32, padding: '16px 20px', background: '#fef8ed', borderRadius: 10 }}>
-            Prime Kurye platformunu kullanmadan önce bu Kullanım Şartları'nı dikkatlice okuyunuz. Platformu kullanarak bu şartları kabul etmiş sayılırsınız.
+            Vın Kurye platformunu kullanmadan önce bu Kullanım Şartları'nı dikkatlice okuyunuz. Platformu kullanarak bu şartları kabul etmiş sayılırsınız.
           </p>
 
           <Section title="1. Hizmetin Tanımı">
-            <p>Prime Kurye, İstanbul genelinde bireyler ve işletmeler için motokurye hizmeti sunan bir dijital platformdur. Platform; sipariş oluşturma, kurye eşleştirme, gerçek zamanlı takip ve güvenli ödeme hizmetleri sunar.</p>
+            <p>Vın Kurye, İstanbul genelinde bireyler ve işletmeler için motokurye hizmeti sunan bir dijital platformdur. Platform; sipariş oluşturma, kurye eşleştirme, gerçek zamanlı takip ve güvenli ödeme hizmetleri sunar.</p>
           </Section>
 
           <Section title="2. Kullanıcı Hesabı">
@@ -107,7 +107,7 @@ export default function SartlarPage() {
           </Section>
 
           <Section title="7. Fikri Mülkiyet">
-            <p>Platform üzerindeki tüm içerikler, tasarımlar, yazılımlar ve markalar Prime Kurye'ye aittir. İzinsiz kopyalanması, dağıtılması veya kullanılması yasaktır.</p>
+            <p>Platform üzerindeki tüm içerikler, tasarımlar, yazılımlar ve markalar Vın Kurye'ye aittir. İzinsiz kopyalanması, dağıtılması veya kullanılması yasaktır.</p>
           </Section>
 
           <Section title="8. Hesap Askıya Alma ve Kapatma">

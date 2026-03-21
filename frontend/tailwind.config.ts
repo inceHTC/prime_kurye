@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Prime Kurye marka renkleri
+        // Vın Kurye marka renkleri
         brand: {
           50:  '#fff7ed',
           100: '#ffedd5',

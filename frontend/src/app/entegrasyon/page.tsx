@@ -69,7 +69,7 @@ export default function EntegrasyonPage() {
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#c8860a' }}>API Entegrasyonu</span>
           </div>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#fff', marginBottom: 20, lineHeight: 1.1 }}>
-            Prime Kurye'yi
+            Vın Kurye'yi
             <br />
             <span style={{ color: '#c8860a' }}>Sisteminize Entegre Edin</span>
           </h1>

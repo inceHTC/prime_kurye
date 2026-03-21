@@ -51,7 +51,7 @@ export default function ApiDokumantasyonBilgiPage() {
 
             <div style={{ padding: 28 }}>
               <p style={{ margin: '0 0 18px', color: '#4a3020', fontSize: '1rem', lineHeight: 1.8 }}>
-                Prime Kurye API erişimi ve detaylı teknik dokümantasyon, aktif kurumsal müşteri hesabı bulunan iş ortaklarımızla paylaşılmaktadır.
+                Vın Kurye API erişimi ve detaylı teknik dokümantasyon, aktif kurumsal müşteri hesabı bulunan iş ortaklarımızla paylaşılmaktadır.
                 Bu yapı; güvenlik, operasyonel doğrulama ve entegrasyon desteğinin sağlıklı yürütülmesi için uygulanır.
               </p>
 

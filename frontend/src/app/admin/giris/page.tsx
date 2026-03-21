@@ -215,8 +215,8 @@ export default function AdminLoginPage() {
               {isLoading
                 ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Giriş yapılıyor...</>
                 : blocked
-                ? `${blockTimer}s bekleyin`
-                : <><Shield size={16} /> Giriş Yap</>
+                  ? `${blockTimer}s bekleyin`
+                  : <><Shield size={16} /> Giriş Yap</>
               }
             </button>
           </form>
@@ -229,7 +229,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: 20, fontSize: '0.72rem', color: 'rgba(255,255,255,0.15)' }}>
-          © {new Date().getFullYear()} Prime Kurye
+          © {new Date().getFullYear()} Vın Kurye
         </p>
       </div>
 

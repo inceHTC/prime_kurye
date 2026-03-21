@@ -65,7 +65,7 @@ export function Navbar() {
 
             <div>
               <div className="font-condensed font-bold text-[#1c0800] text-[1.15rem] leading-none">
-                PRIME<span className="text-[#c8860a]">KURYE</span>
+                VIN<span className="text-[#c8860a]">KURYE</span>
               </div>
               <div className="hidden md:block text-[#a89080] text-[0.6rem] tracking-widest mt-0.5">
                 Hızlı · Güvenilir · Profesyonel

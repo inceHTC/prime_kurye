@@ -108,7 +108,7 @@ export default function KuryeOlPage() {
                 <Bike size={36} color="#c8860a" />
               </div>
               <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#fff', marginBottom: 16, lineHeight: 1.1 }}>
-                Prime Kurye Ailesine<br />
+                Vın Kurye Ailesine<br />
                 <span style={{ color: '#c8860a' }}>Katıl, Kazan!</span>
               </h1>
               <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.60)', lineHeight: 1.7, marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
@@ -133,7 +133,7 @@ export default function KuryeOlPage() {
 
             {/* Avantajlar */}
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.75rem', color: '#1c0800', textAlign: 'center', marginBottom: 40 }}>
-              Neden Prime Kurye?
+              Neden Vın Kurye?
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20, marginBottom: 60 }}>
               {benefits.map(b => {

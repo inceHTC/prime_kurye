@@ -45,11 +45,11 @@ export default function GizlilikPage() {
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(28,8,0,0.08)', padding: '40px 36px' }}>
 
           <p style={{ fontSize: '0.9rem', color: '#7a6050', lineHeight: 1.85, marginBottom: 32, padding: '16px 20px', background: '#fef8ed', borderRadius: 10 }}>
-            Prime Kurye olarak kişisel verilerinizin gizliliğini ciddiye alıyoruz. Bu politika, hangi verileri topladığımızı, nasıl kullandığımızı ve haklarınızın neler olduğunu açıklamaktadır. 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında hazırlanmıştır.
+            Vın Kurye olarak kişisel verilerinizin gizliliğini ciddiye alıyoruz. Bu politika, hangi verileri topladığımızı, nasıl kullandığımızı ve haklarınızın neler olduğunu açıklamaktadır. 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında hazırlanmıştır.
           </p>
 
           <Section title="1. Veri Sorumlusu">
-            <p>Kişisel verileriniz, <strong>Prime Kurye</strong> tarafından veri sorumlusu sıfatıyla işlenmektedir.</p>
+            <p>Kişisel verileriniz, <strong>Vın Kurye</strong> tarafından veri sorumlusu sıfatıyla işlenmektedir.</p>
             <p style={{ marginTop: 8 }}>İletişim: destek@primekurye.com | +90 212 123 45 67</p>
           </Section>
 

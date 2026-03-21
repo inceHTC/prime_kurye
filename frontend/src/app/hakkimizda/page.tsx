@@ -31,7 +31,7 @@ export default function HakkimizdaPage() {
             <span style={{ color: '#c8860a' }}>Motokurye Platformu</span>
           </h1>
           <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, maxWidth: 560, margin: '0 auto' }}>
-            2024 yılında kurulan Prime Kurye, bireylerin ve işletmelerin paketlerini güvenli, hızlı ve şeffaf bir şekilde ulaştırma misyonuyla yola çıktı.
+            2024 yılında kurulan Vın Kurye, bireylerin ve işletmelerin paketlerini güvenli, hızlı ve şeffaf bir şekilde ulaştırma misyonuyla yola çıktı.
           </p>
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function HakkimizdaPage() {
           <div>
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '2rem', color: '#1c0800', marginBottom: 16 }}>Hikayemiz</h2>
             <p style={{ fontSize: '0.9rem', color: '#7a6050', lineHeight: 1.85, marginBottom: 14 }}>
-              İstanbul'da her gün milyonlarca paket taşınıyor. Ama pek çok kişi güvenilir, hızlı ve şeffaf bir kurye hizmetine ulaşmakta zorlanıyordu. Biz bu sorunu çözmek için Prime Kurye'yi kurduk.
+              İstanbul'da her gün milyonlarca paket taşınıyor. Ama pek çok kişi güvenilir, hızlı ve şeffaf bir kurye hizmetine ulaşmakta zorlanıyordu. Biz bu sorunu çözmek için Vın Kurye'yi kurduk.
             </p>
             <p style={{ fontSize: '0.9rem', color: '#7a6050', lineHeight: 1.85, marginBottom: 14 }}>
               Gerçek zamanlı takip, güvenli escrow ödeme sistemi ve kaliteli motokuryelerden oluşan ağımızla sektörde fark yaratıyoruz.

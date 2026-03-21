@@ -56,11 +56,11 @@ function LoginContent() {
         else router.push('/dashboard')
       }
     } catch (error: any) {
-  const message = error.response?.data?.message
-  if (message?.includes('E-posta')) toast.error('E-posta veya şifre hatalı')
-  else if (message?.includes('askıya')) toast.error('Hesabınız askıya alınmış. Destek ile iletişime geçin.')
-  else toast.error(message || 'Giriş başarısız. Lütfen tekrar deneyin.')
-}
+      const message = error.response?.data?.message
+      if (message?.includes('E-posta')) toast.error('E-posta veya şifre hatalı')
+      else if (message?.includes('askıya')) toast.error('Hesabınız askıya alınmış. Destek ile iletişime geçin.')
+      else toast.error(message || 'Giriş başarısız. Lütfen tekrar deneyin.')
+    }
   }
 
   return (
@@ -71,7 +71,7 @@ function LoginContent() {
             <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-lg text-dark-900 tracking-tight">
-            Prime<span className="text-brand-500">Kurye</span>
+            Vın<span className="text-brand-500">Kurye</span>
           </span>
         </Link>
       </header>

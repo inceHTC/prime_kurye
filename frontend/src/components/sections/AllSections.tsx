@@ -228,7 +228,7 @@ export function FeaturesSection() {
             padding: '5px 12px', borderRadius: 4, marginBottom: 14,
             border: '1px solid rgba(200,134,10,0.20)',
           }}>
-            Neden Prime Kurye?
+            Neden Vın Kurye?
           </div>
           <h2 style={{
             fontFamily: "'Barlow Condensed', sans-serif",
@@ -382,12 +382,12 @@ export function PricingSection() {
 export function TestimonialsSection() {
   const testimonials = [
     {
-      quote: 'Günde en az 15 siparişimi Prime Kurye ile gönderiyorum. Teslimat süreleri çok tutarlı, müşteri şikayeti neredeyse sıfır.',
+      quote: 'Günde en az 15 siparişimi Vın Kurye ile gönderiyorum. Teslimat süreleri çok tutarlı, müşteri şikayeti neredeyse sıfır.',
       name: 'Derya K.', role: 'Bloom Butik Sahibi', city: 'Beşiktaş',
       avatar: '/images/1.png',
     },
     {
-      quote: 'API entegrasyonu 1 günde kuruldu. Prime Kurye ile şimdi siparişler zamanında teslim ediliyor. ',
+      quote: 'API entegrasyonu 1 günde kuruldu. Vın Kurye ile şimdi siparişler zamanında teslim ediliyor. ',
       name: 'Gökhan A.', role: 'E-ticaret Girişimcisi', city: 'Şişli',
       avatar: '/images/2.png',
     },

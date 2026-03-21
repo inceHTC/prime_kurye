@@ -241,7 +241,7 @@ export default function KuryeBelgelerPage() {
             <div style={{ background: '#fef8ed', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
               <Shield size={16} color="#c8860a" style={{ flexShrink: 0, marginTop: 1 }} />
               <p style={{ fontSize: '0.78rem', color: '#7a6050', lineHeight: 1.6 }}>
-                Belgeleriniz 256-bit şifreleme ile korunur. Yalnızca Prime Kurye yetkilileri görebilir.
+                Belgeleriniz 256-bit şifreleme ile korunur. Yalnızca Vın Kurye yetkilileri görebilir.
                 Kabul edilmez belge türleri: eksik, bulanık veya süresi dolmuş belgeler.
               </p>
             </div>
