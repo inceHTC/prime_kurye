@@ -33,7 +33,7 @@ async function getStats(req, res) {
         weekAgo.setDate(weekAgo.getDate() - 7);
         const monthAgo = new Date(today);
         monthAgo.setDate(monthAgo.getDate() - 30);
-        const [totalOrders, activeOrders, deliveredOrders, cancelledOrders, totalUsers, totalCouriers, activeCouriers, totalBusinesses, todayOrders, weekOrders, escrowHeld, totalRevenue, totalCommission, pendingPayouts,] = await Promise.all([
+        const [totalOrders, activeOrders, deliveredOrders, cancelledOrders, totalUsers, totalCouriers, activeCouriers, totalBusinesses, todayOrders, weekOrders, totalRevenue, pendingPayouts,] = await Promise.all([
             prisma_1.prisma.order.count(),
             prisma_1.prisma.order.count({ where: { status: { in: ['PENDING', 'CONFIRMED', 'PICKING_UP', 'IN_TRANSIT'] } } }),
             prisma_1.prisma.order.count({ where: { status: 'DELIVERED' } }),
@@ -41,12 +41,10 @@ async function getStats(req, res) {
             prisma_1.prisma.user.count({ where: { role: { in: ['INDIVIDUAL', 'BUSINESS'] } } }),
             prisma_1.prisma.courier.count(),
             prisma_1.prisma.courier.count({ where: { isOnline: true, isApproved: true } }),
-            prisma_1.prisma.business.count(),
+            prisma_1.prisma.user.count({ where: { role: 'BUSINESS' } }),
             prisma_1.prisma.order.findMany({ where: { createdAt: { gte: today } } }),
             prisma_1.prisma.order.findMany({ where: { createdAt: { gte: weekAgo } } }),
-            prisma_1.prisma.order.aggregate({ where: { escrowStatus: 'HELD' }, _sum: { escrowAmount: true } }),
             prisma_1.prisma.order.aggregate({ where: { status: 'DELIVERED' }, _sum: { price: true } }),
-            prisma_1.prisma.order.aggregate({ where: { status: 'DELIVERED' }, _sum: { commissionAmount: true } }),
             prisma_1.prisma.payout.aggregate({ where: { status: 'PENDING' }, _sum: { netAmount: true } }),
         ]);
         const todayRevenue = todayOrders.reduce((s, o) => s + o.price, 0);
@@ -57,9 +55,9 @@ async function getStats(req, res) {
                 orders: { total: totalOrders, active: activeOrders, delivered: deliveredOrders, cancelled: cancelledOrders, today: todayOrders.length, week: weekOrders.length },
                 users: { total: totalUsers, businesses: totalBusinesses, couriers: totalCouriers, activeCouriers },
                 finance: {
-                    escrowHeld: escrowHeld._sum.escrowAmount || 0,
+                    escrowHeld: 0,
                     totalRevenue: totalRevenue._sum.price || 0,
-                    totalCommission: totalCommission._sum.commissionAmount || 0,
+                    totalCommission: 0,
                     pendingPayouts: pendingPayouts._sum.netAmount || 0,
                     todayRevenue, weekRevenue,
                 },
@@ -259,18 +257,49 @@ async function getAllCouriers(req, res) {
                 ]
             };
         }
-        const [couriers, total] = await Promise.all([
-            prisma_1.prisma.courier.findMany({
-                where, orderBy: { createdAt: 'desc' },
-                skip: (Number(page) - 1) * Number(limit),
-                take: Number(limit),
-                include: {
-                    user: { select: { id: true, fullName: true, email: true, phone: true, isActive: true, createdAt: true } },
-                    _count: { select: { orders: true } },
-                },
-            }),
-            prisma_1.prisma.courier.count({ where }),
-        ]);
+        let couriers = [];
+        let total = 0;
+        try {
+            ;
+            [couriers, total] = await Promise.all([
+                prisma_1.prisma.courier.findMany({
+                    where, orderBy: { createdAt: 'desc' },
+                    skip: (Number(page) - 1) * Number(limit),
+                    take: Number(limit),
+                    include: {
+                        user: { select: { id: true, fullName: true, email: true, phone: true, isActive: true, createdAt: true } },
+                        _count: { select: { orders: true } },
+                    },
+                }),
+                prisma_1.prisma.courier.count({ where }),
+            ]);
+        }
+        catch {
+            ;
+            [couriers, total] = await Promise.all([
+                prisma_1.prisma.courier.findMany({
+                    where, orderBy: { createdAt: 'desc' },
+                    skip: (Number(page) - 1) * Number(limit),
+                    take: Number(limit),
+                    select: {
+                        id: true,
+                        isOnline: true,
+                        isApproved: true,
+                        rating: true,
+                        createdAt: true,
+                        user: { select: { id: true, fullName: true, email: true, phone: true, isActive: true, createdAt: true } },
+                        _count: { select: { orders: true } },
+                    },
+                }),
+                prisma_1.prisma.courier.count({ where }),
+            ]);
+            couriers = couriers.map((courier) => ({
+                ...courier,
+                totalDeliveries: courier._count?.orders ?? 0,
+                pendingPayout: 0,
+                documentsSubmitted: false,
+            }));
+        }
         return res.json({ success: true, data: { couriers, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) } });
     }
     catch {
@@ -544,11 +573,21 @@ async function updateSettings(req, res) {
 async function getAllBusinesses(req, res) {
     try {
         const { page = 1, limit = 20, search } = req.query;
-        const where = {};
+        const where = {
+            user: {
+                role: 'BUSINESS',
+            },
+        };
         if (search) {
-            where.OR = [
-                { companyName: { contains: search, mode: 'insensitive' } },
-                { user: { email: { contains: search, mode: 'insensitive' } } },
+            where.AND = [
+                {
+                    OR: [
+                        { companyName: { contains: search, mode: 'insensitive' } },
+                        { user: { email: { contains: search, mode: 'insensitive' } } },
+                        { user: { fullName: { contains: search, mode: 'insensitive' } } },
+                        { user: { phone: { contains: search, mode: 'insensitive' } } },
+                    ],
+                },
             ];
         }
         const [businesses, total] = await Promise.all([

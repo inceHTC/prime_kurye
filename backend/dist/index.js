@@ -20,7 +20,7 @@ const escrow_routes_1 = __importDefault(require("./routes/escrow.routes"));
 const report_routes_1 = __importDefault(require("./routes/report.routes"));
 const courierDoc_routes_1 = __importDefault(require("./routes/courierDoc.routes"));
 const cron_service_1 = require("./services/cron.service");
-// app.listen'den sonra:
+const passwordReset_routes_1 = __importDefault(require("./routes/passwordReset.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 4000;
@@ -66,6 +66,7 @@ app.use('/api/reports', report_routes_1.default);
 app.use('/api/courier-docs', courierDoc_routes_1.default);
 app.use('/uploads', express_1.default.static(path_1.default.join(process.cwd(), 'uploads')));
 app.use('/api/courier-docs', courierDoc_routes_1.default);
+app.use('/api/auth', passwordReset_routes_1.default);
 app.get('/health', (_, res) => {
     res.json({ status: 'ok', message: 'Prime Kurye API calisiyor', timestamp: new Date() });
 });

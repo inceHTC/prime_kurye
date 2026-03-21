@@ -20,7 +20,7 @@ export async function getStats(req: Request, res: Response) {
       totalOrders, activeOrders, deliveredOrders, cancelledOrders,
       totalUsers, totalCouriers, activeCouriers, totalBusinesses,
       todayOrders, weekOrders,
-      escrowHeld, totalRevenue, totalCommission,
+      totalRevenue,
       pendingPayouts,
     ] = await Promise.all([
       prisma.order.count(),
@@ -30,12 +30,10 @@ export async function getStats(req: Request, res: Response) {
       prisma.user.count({ where: { role: { in: ['INDIVIDUAL', 'BUSINESS'] } } }),
       prisma.courier.count(),
       prisma.courier.count({ where: { isOnline: true, isApproved: true } }),
-      prisma.business.count(),
+      prisma.user.count({ where: { role: 'BUSINESS' } }),
       prisma.order.findMany({ where: { createdAt: { gte: today } } }),
       prisma.order.findMany({ where: { createdAt: { gte: weekAgo } } }),
-      prisma.order.aggregate({ where: { escrowStatus: 'HELD' }, _sum: { escrowAmount: true } }),
       prisma.order.aggregate({ where: { status: 'DELIVERED' }, _sum: { price: true } }),
-      prisma.order.aggregate({ where: { status: 'DELIVERED' }, _sum: { commissionAmount: true } }),
       prisma.payout.aggregate({ where: { status: 'PENDING' }, _sum: { netAmount: true } }),
     ])
 
@@ -48,9 +46,9 @@ export async function getStats(req: Request, res: Response) {
         orders: { total: totalOrders, active: activeOrders, delivered: deliveredOrders, cancelled: cancelledOrders, today: todayOrders.length, week: weekOrders.length },
         users: { total: totalUsers, businesses: totalBusinesses, couriers: totalCouriers, activeCouriers },
         finance: {
-          escrowHeld: escrowHeld._sum.escrowAmount || 0,
+          escrowHeld: 0,
           totalRevenue: totalRevenue._sum.price || 0,
-          totalCommission: totalCommission._sum.commissionAmount || 0,
+          totalCommission: 0,
           pendingPayouts: pendingPayouts._sum.netAmount || 0,
           todayRevenue, weekRevenue,
         },
@@ -245,18 +243,48 @@ export async function getAllCouriers(req: Request, res: Response) {
       }
     }
 
-    const [couriers, total] = await Promise.all([
-      prisma.courier.findMany({
-        where, orderBy: { createdAt: 'desc' },
-        skip: (Number(page) - 1) * Number(limit),
-        take: Number(limit),
-        include: {
-          user: { select: { id: true, fullName: true, email: true, phone: true, isActive: true, createdAt: true } },
-          _count: { select: { orders: true } },
-        },
-      }),
-      prisma.courier.count({ where }),
-    ])
+    let couriers: any[] = []
+    let total = 0
+
+    try {
+      ;[couriers, total] = await Promise.all([
+        prisma.courier.findMany({
+          where, orderBy: { createdAt: 'desc' },
+          skip: (Number(page) - 1) * Number(limit),
+          take: Number(limit),
+          include: {
+            user: { select: { id: true, fullName: true, email: true, phone: true, isActive: true, createdAt: true } },
+            _count: { select: { orders: true } },
+          },
+        }),
+        prisma.courier.count({ where }),
+      ])
+    } catch {
+      ;[couriers, total] = await Promise.all([
+        prisma.courier.findMany({
+          where, orderBy: { createdAt: 'desc' },
+          skip: (Number(page) - 1) * Number(limit),
+          take: Number(limit),
+          select: {
+            id: true,
+            isOnline: true,
+            isApproved: true,
+            rating: true,
+            createdAt: true,
+            user: { select: { id: true, fullName: true, email: true, phone: true, isActive: true, createdAt: true } },
+            _count: { select: { orders: true } },
+          },
+        }),
+        prisma.courier.count({ where }),
+      ])
+
+      couriers = couriers.map((courier) => ({
+        ...courier,
+        totalDeliveries: courier._count?.orders ?? 0,
+        pendingPayout: 0,
+        documentsSubmitted: false,
+      }))
+    }
 
     return res.json({ success: true, data: { couriers, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) } })
   } catch {
@@ -544,11 +572,21 @@ export async function updateSettings(req: Request, res: Response) {
 export async function getAllBusinesses(req: Request, res: Response) {
   try {
     const { page = 1, limit = 20, search } = req.query
-    const where: any = {}
+    const where: any = {
+      user: {
+        role: 'BUSINESS',
+      },
+    }
     if (search) {
-      where.OR = [
-        { companyName: { contains: search as string, mode: 'insensitive' } },
-        { user: { email: { contains: search as string, mode: 'insensitive' } } },
+      where.AND = [
+        {
+          OR: [
+            { companyName: { contains: search as string, mode: 'insensitive' } },
+            { user: { email: { contains: search as string, mode: 'insensitive' } } },
+            { user: { fullName: { contains: search as string, mode: 'insensitive' } } },
+            { user: { phone: { contains: search as string, mode: 'insensitive' } } },
+          ],
+        },
       ]
     }
 

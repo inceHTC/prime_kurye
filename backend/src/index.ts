@@ -15,8 +15,8 @@ import escrowRoutes from './routes/escrow.routes'
 import reportRoutes from './routes/report.routes'
 import courierDocRoutes from './routes/courierDoc.routes'
 import { startCronJobs } from './services/cron.service'
+import passwordResetRoutes from './routes/passwordReset.routes'
 
-// app.listen'den sonra:
 
 
 dotenv.config()
@@ -73,7 +73,7 @@ app.use('/api/reports', reportRoutes)
 app.use('/api/courier-docs', courierDocRoutes)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 app.use('/api/courier-docs', courierDocRoutes)
-
+app.use('/api/auth', passwordResetRoutes)
 
 
 
