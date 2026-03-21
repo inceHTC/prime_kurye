@@ -215,10 +215,12 @@ export default function AdminPage() {
     { id: 'users', label: 'Üyeler', icon: Users },
     { id: 'couriers', label: 'Kuryeler', icon: Bike },
     { id: 'businesses', label: 'İşletmeler', icon: Building2 },
-    { id: 'finance', label: 'Finans', icon: DollarSign, children: [
-      { id: 'escrow', label: 'Havuz (Escrow)', icon: Wallet },
-      { id: 'payouts', label: 'Hakedişler', icon: CreditCard },
-    ]},
+    {
+      id: 'finance', label: 'Finans', icon: DollarSign, children: [
+        { id: 'escrow', label: 'Havuz (Escrow)', icon: Wallet },
+        { id: 'payouts', label: 'Hakedişler', icon: CreditCard },
+      ]
+    },
     { id: 'settings', label: 'Sistem Ayarları', icon: Settings },
   ]
 
@@ -242,7 +244,7 @@ export default function AdminPage() {
                 <Zap size={14} color="#1c0800" strokeWidth={2.5} />
               </div>
               <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 16, color: '#fff', whiteSpace: 'nowrap' }}>
-                PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+                VIN<span style={{ color: '#c8860a' }}>KURYE</span>
                 <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.35)', marginLeft: 6 }}>ADMIN</span>
               </span>
             </Link>
@@ -328,8 +330,8 @@ export default function AdminPage() {
         <header style={{ background: '#fff', borderBottom: '1px solid rgba(28,8,0,0.08)', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
           <h1 style={{ fontSize: '1rem', fontWeight: 700, color: '#1c0800' }}>
             {navItems.find(n => n.id === activeTab)?.label ||
-             navItems.flatMap(n => n.children || []).find(c => c.id === activeTab)?.label ||
-             'Admin Panel'}
+              navItems.flatMap(n => n.children || []).find(c => c.id === activeTab)?.label ||
+              'Admin Panel'}
           </h1>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => { if (activeTab === 'dashboard') void fetchDashboardData(); else void fetchTabData() }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#f5f3ef', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.8rem', color: '#4a3020' }}>
@@ -381,7 +383,7 @@ export default function AdminPage() {
                     Tümü <ChevronRight size={13} />
                   </button>
                 </div>
-                <OrderTable orders={orders.slice(0, 6)} couriers={couriers} onAssign={() => {}} compact />
+                <OrderTable orders={orders.slice(0, 6)} couriers={couriers} onAssign={() => { }} compact />
               </div>
             </div>
           )}
@@ -922,9 +924,11 @@ function OrderTable({ orders, couriers, onAssign, compact = false }: {
                     ) : <span style={{ fontSize: '0.75rem', color: '#a89080' }}>—</span>}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+                    <span style={{
+                      fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 4,
                       background: o.escrowStatus === 'HELD' ? '#fef9c3' : o.escrowStatus === 'RELEASED' ? '#dcfce7' : '#f3f4f6',
-                      color: o.escrowStatus === 'HELD' ? '#854d0e' : o.escrowStatus === 'RELEASED' ? '#166534' : '#6b7280' }}>
+                      color: o.escrowStatus === 'HELD' ? '#854d0e' : o.escrowStatus === 'RELEASED' ? '#166534' : '#6b7280'
+                    }}>
                       {o.escrowStatus}
                     </span>
                   </td>

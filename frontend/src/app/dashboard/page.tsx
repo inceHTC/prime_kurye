@@ -38,8 +38,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!accessToken) { router.push('/giris'); return }
     if (user?.role === 'INDIVIDUAL') { router.push('/dashboard/bireysel'); return }
-if (user?.role === 'COURIER') { router.push('/kurye'); return }
-if (user?.role === 'ADMIN') { router.push('/admin'); return }
+    if (user?.role === 'COURIER') { router.push('/kurye'); return }
+    if (user?.role === 'ADMIN') { router.push('/admin'); return }
     fetchOrders()
   }, [accessToken])
 
@@ -95,7 +95,7 @@ if (user?.role === 'ADMIN') { router.push('/admin'); return }
               <Zap size={16} color="#1c0800" strokeWidth={2.5} />
             </div>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: '#fff' }}>
-              PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+              VIN<span style={{ color: '#c8860a' }}>KURYE</span>
             </span>
           </Link>
 

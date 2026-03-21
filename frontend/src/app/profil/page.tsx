@@ -144,7 +144,7 @@ export default function ProfilPage() {
                 <Zap size={14} color="#1c0800" strokeWidth={2.5} />
               </div>
               <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: '#1c0800' }}>
-                PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+                VIN<span style={{ color: '#c8860a' }}>KURYE</span>
               </span>
             </Link>
           </div>

@@ -104,13 +104,13 @@ function RegisterContent() {
         else if (role === 'BUSINESS') router.push('/dashboard')
         else router.push('/dashboard/bireysel')
       }
- } catch (error: any) {
-  const message = error.response?.data?.message
-  if (message?.includes('E-posta')) toast.error('Bu e-posta adresi zaten kayıtlı')
-  else if (message?.includes('Telefon')) toast.error('Bu telefon numarası zaten kayıtlı')
-  else if (message?.includes('gerekli')) toast.error(message)
-  else toast.error(message || 'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
-}
+    } catch (error: any) {
+      const message = error.response?.data?.message
+      if (message?.includes('E-posta')) toast.error('Bu e-posta adresi zaten kayıtlı')
+      else if (message?.includes('Telefon')) toast.error('Bu telefon numarası zaten kayıtlı')
+      else if (message?.includes('gerekli')) toast.error(message)
+      else toast.error(message || 'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
+    }
   }
 
   const activeRole = roles.find((role) => role.value === selectedRole)!
@@ -123,7 +123,7 @@ function RegisterContent() {
             <Zap size={16} color="#1c0800" strokeWidth={2.5} />
           </div>
           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: '#1c0800' }}>
-            PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+            VIN<span style={{ color: '#c8860a' }}>KURYE</span>
           </span>
         </Link>
       </header>

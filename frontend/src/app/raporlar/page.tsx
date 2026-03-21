@@ -76,7 +76,7 @@ export default function RaporlarPage() {
             <Zap size={14} color="#1c0800" strokeWidth={2.5} />
           </div>
           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: '#fff' }}>
-            PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+            VIN<span style={{ color: '#c8860a' }}>KURYE</span>
           </span>
         </Link>
         <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>· Raporlar</span>
@@ -91,7 +91,7 @@ export default function RaporlarPage() {
             {PERIODS.map(p => (
               <button key={p.value} onClick={() => setPeriod(p.value)}
                 style={{
-                  padding: '8px 16px', borderRadius: 8, 
+                  padding: '8px 16px', borderRadius: 8,
                   border: 'none',
                   cursor: 'pointer', fontFamily: "'Barlow', sans-serif",
                   fontWeight: 600, fontSize: '0.82rem',
@@ -292,13 +292,13 @@ export default function RaporlarPage() {
 
 function getStatusStyle(status: string) {
   const map: Record<string, any> = {
-    PENDING:    { background: '#fef9c3', color: '#854d0e' },
-    CONFIRMED:  { background: '#dbeafe', color: '#1e40af' },
+    PENDING: { background: '#fef9c3', color: '#854d0e' },
+    CONFIRMED: { background: '#dbeafe', color: '#1e40af' },
     PICKING_UP: { background: '#ede9fe', color: '#5b21b6' },
     IN_TRANSIT: { background: '#ffedd5', color: '#9a3412' },
-    DELIVERED:  { background: '#dcfce7', color: '#166534' },
-    CANCELLED:  { background: '#f3f4f6', color: '#4b5563' },
-    FAILED:     { background: '#fee2e2', color: '#991b1b' },
+    DELIVERED: { background: '#dcfce7', color: '#166534' },
+    CANCELLED: { background: '#f3f4f6', color: '#4b5563' },
+    FAILED: { background: '#fee2e2', color: '#991b1b' },
   }
   return map[status] || { background: '#f3f4f6', color: '#4b5563' }
 }

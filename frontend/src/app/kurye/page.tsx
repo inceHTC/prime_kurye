@@ -78,15 +78,15 @@ export default function KuryePanelPage() {
       toast.error('Durum güncellenemedi')
     }
   }
-const handleRejectOrder = async (orderId: string) => {
-  try {
-    await api.patch(`/orders/${orderId}/reject`)
-    toast.success('Sipariş reddedildi')
-    fetchData()
-  } catch {
-    toast.error('İşlem başarısız')
+  const handleRejectOrder = async (orderId: string) => {
+    try {
+      await api.patch(`/orders/${orderId}/reject`)
+      toast.success('Sipariş reddedildi')
+      fetchData()
+    } catch {
+      toast.error('İşlem başarısız')
+    }
   }
-}
   const handleLogout = () => {
     clearAuth()
     toast.success('Çıkış yapıldı')
@@ -114,7 +114,7 @@ const handleRejectOrder = async (orderId: string) => {
             <Zap size={16} color="#1c0800" strokeWidth={2.5} />
           </div>
           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: '#fff' }}>
-            PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+            VIN<span style={{ color: '#c8860a' }}>KURYE</span>
           </span>
         </Link>
 
@@ -357,40 +357,40 @@ function OrderCard({ order, onAccept, onReject, onUpdateStatus }: {
             Paketi Aldım, Yoldayım
           </button>
         )}
-       {order.status === 'IN_TRANSIT' && (
-  <label style={{
-    flex: 1, padding: '11px 0',
-    background: '#16a34a', color: '#fff',
-    border: 'none', borderRadius: 8,
-    fontFamily: "'Barlow', sans-serif",
-    fontWeight: 700, fontSize: '0.875rem',
-    cursor: 'pointer', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', gap: 6,
-  }}>
-    📷 Teslim Fotoğrafı Çek
-    <input
-      type="file"
-      accept="image/*"
-      capture="environment"
-      style={{ display: 'none' }}
-      onChange={async (e) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        const formData = new FormData()
-        formData.append('proof', file)
-        try {
-          await api.post(`/orders/${order.id}/proof`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          })
-          toast.success('Teslim onaylandı!')
-          onUpdateStatus('DELIVERED')
-        } catch {
-          toast.error('Fotoğraf yüklenemedi')
-        }
-      }}
-    />
-  </label>
-)}
+        {order.status === 'IN_TRANSIT' && (
+          <label style={{
+            flex: 1, padding: '11px 0',
+            background: '#16a34a', color: '#fff',
+            border: 'none', borderRadius: 8,
+            fontFamily: "'Barlow', sans-serif",
+            fontWeight: 700, fontSize: '0.875rem',
+            cursor: 'pointer', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}>
+            📷 Teslim Fotoğrafı Çek
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const formData = new FormData()
+                formData.append('proof', file)
+                try {
+                  await api.post(`/orders/${order.id}/proof`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                  })
+                  toast.success('Teslim onaylandı!')
+                  onUpdateStatus('DELIVERED')
+                } catch {
+                  toast.error('Fotoğraf yüklenemedi')
+                }
+              }}
+            />
+          </label>
+        )}
         <a
           href={getCourierNavigationUrl(order)}
           target="_blank"

@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
             <Shield size={28} color="#c8860a" />
           </div>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.5rem', color: '#fff', marginBottom: 4 }}>
-            PRIME<span style={{ color: '#c8860a' }}>KURYE</span>
+            VIN<span style={{ color: '#c8860a' }}>KURYE</span>
           </h1>
           <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Yönetim Paneli
