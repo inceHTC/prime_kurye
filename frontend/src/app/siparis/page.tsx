@@ -123,6 +123,7 @@ function SiparisContent() {
   const [form, setForm] = useState<OrderFormState>(() => createDefaultForm())
   const [senderSuggestions, setSenderSuggestions] = useState<NeighborhoodPrediction[]>([])
   const [recipientSuggestions, setRecipientSuggestions] = useState<NeighborhoodPrediction[]>([])
+  const [mapsAutocompleteAvailable, setMapsAutocompleteAvailable] = useState(false)
 
   const getUserDraftStorageKey = (userId?: string) => (userId ? `prime-kurye-order-draft-${userId}` : null)
 
@@ -227,12 +228,21 @@ function SiparisContent() {
     void updateNeighborhoodSuggestions('recipient', form.recipientDistrict, form.recipientNeighborhood)
   }, [form.recipientDistrict, form.recipientNeighborhood, isMapsLoaded])
 
+  useEffect(() => {
+    if (!isMapsLoaded || typeof window === 'undefined') {
+      setMapsAutocompleteAvailable(false)
+      return
+    }
+
+    setMapsAutocompleteAvailable(Boolean(window.google?.maps?.places?.AutocompleteService))
+  }, [isMapsLoaded])
+
   const updateNeighborhoodSuggestions = async (
     prefix: 'sender' | 'recipient',
     districtValue: string,
     query: string
   ) => {
-    if (!isMapsLoaded || !districtValue || query.trim().length < 2 || !window.google?.maps?.places) {
+    if (!mapsAutocompleteAvailable || !districtValue || query.trim().length < 2 || !window.google?.maps?.places) {
       if (prefix === 'sender') setSenderSuggestions([])
       else setRecipientSuggestions([])
       return
@@ -545,9 +555,9 @@ function SiparisContent() {
                       <Truck className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-dark-900">Manuel İstanbul içi sipariş</p>
+                      <p className="text-sm font-bold text-dark-900">Kurye Talebi Oluşturun</p>
                       <p className="text-xs text-dark-500">
-                        Test ortamında adresler ilçe ve detay alanlarıyla manuel alınıyor.
+                        
                       </p>
                     </div>
                   </div>
