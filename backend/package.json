@@ -7,7 +7,13 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push"
+    "prisma:push": "prisma db push",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:users": "ts-node prisma/seed.ts",
+    "db:seed:orders": "ts-node prisma/seed-orders.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "5.16.1",

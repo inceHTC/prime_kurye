@@ -48,28 +48,37 @@ export default function AdminPage() {
   const [escrow, setEscrow] = useState<any>(null)
   const [settings, setSettings] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isHydrated, setIsHydrated] = useState(false)
   const [search, setSearch] = useState('')
   const [orderFilter, setOrderFilter] = useState('ALL')
   const [isCalculating, setIsCalculating] = useState(false)
 
   useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return
+    }
+
     if (!accessToken || (user && user.role !== 'ADMIN')) {
       router.push('/admin/giris')
     }
-  }, [accessToken, router, user])
-
-  if (!accessToken || !user || user.role !== 'ADMIN') {
-    return null
-  }
+  }, [accessToken, isHydrated, router, user])
 
   useEffect(() => {
+    if (!isHydrated || !accessToken || !user || user.role !== 'ADMIN') {
+      return
+    }
+
     if (activeTab === 'dashboard') {
       void fetchDashboardData()
       return
     }
 
     void fetchTabData()
-  }, [activeTab])
+  }, [accessToken, activeTab, isHydrated, user])
 
   const fetchStats = async () => {
     try {
@@ -185,6 +194,19 @@ export default function AdminPage() {
       await api.patch('/admin/settings', settings)
       toast.success('Ayarlar kaydedildi!')
     } catch { toast.error('Kayıt başarısız') }
+  }
+
+  if (!isHydrated) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
+        <RefreshCw size={24} color="#c8860a" style={{ animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  if (!accessToken || !user || user.role !== 'ADMIN') {
+    return null
   }
 
   const navItems = [
