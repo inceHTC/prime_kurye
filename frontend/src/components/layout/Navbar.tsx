@@ -87,7 +87,14 @@ export function Navbar() {
           </nav>
 
           {/* CTA */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/kurye-ol"
+              className="btn-outline text-sm px-5 py-2.5"
+            >
+              Kurye Ol
+            </Link>
+
             <Link
               href="/siparis"
               className="btn-primary text-sm px-5 py-2.5"
@@ -129,6 +136,14 @@ export function Navbar() {
             </nav>
 
             <div className="px-4 pb-6 pt-2 flex flex-col gap-3 border-t">
+              <Link
+                href="/kurye-ol"
+                onClick={() => setOpen(false)}
+                className="btn-outline w-full text-center py-3"
+              >
+                Kurye Ol
+              </Link>
+
               <Link
                 href="/siparis"
                 onClick={() => setOpen(false)}
