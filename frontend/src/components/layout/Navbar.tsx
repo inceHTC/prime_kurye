@@ -49,14 +49,12 @@ export function Navbar() {
 
       {/* Navbar */}
       <header
-        className={`sticky top-0 z-50 bg-white transition-all duration-200 ${
-          scrolled ? 'shadow-md' : 'border-b border-black/[0.08]'
-        }`}
+        className={`sticky top-0 z-50 bg-white transition-all duration-200 ${scrolled ? 'shadow-md' : 'border-b border-black/[0.08]'
+          }`}
       >
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-14 md:h-16 pr-4">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 pl-4">
+          <Link href="/" className="flex items-center gap-2 pl-4 flex-shrink-0">
             <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center bg-[#c8860a] shadow-md">
               <svg width="16" height="16" viewBox="0 0 24 24">
                 <path d="M13 3L6 14h6l-1 7 7-11h-6l1-7z" fill="white" />
@@ -73,31 +71,31 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 px-4">
+          {/* Desktop nav: justify-center ile ortaya aldık, mx-8 ile yanlardan boşluk verdik */}
+          <nav className="hidden md:flex items-center justify-center gap-2 flex-1 mx-8">
             {navItems.map(item => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="px-3 py-2 rounded-lg text-sm font-semibold text-[#4a3020] hover:bg-[#f5f3ef] hover:text-[#1c0800] transition whitespace-nowrap"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-[#4a3020] hover:bg-[#f5f3ef] hover:text-[#1c0800] transition whitespace-nowrap"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          {/* CTA */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* CTA: flex-shrink-0 ile sağda sabit durmasını sağladık */}
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
             <Link
               href="/kurye-ol"
-              className="btn-outline text-sm px-5 py-2.5"
+              className="btn-outline text-sm px-5 py-2.5 border border-[#c8860a] text-[#c8860a] rounded-lg hover:bg-[#c8860a] hover:text-white transition"
             >
               Kurye Ol
             </Link>
 
             <Link
               href="/siparis"
-              className="btn-primary text-sm px-5 py-2.5"
+              className="btn-primary text-sm px-5 py-2.5 bg-[#c8860a] text-white rounded-lg shadow-md hover:bg-[#a87008] transition"
             >
               Kurye Çağır
             </Link>
@@ -137,7 +135,7 @@ export function Navbar() {
 
             <div className="px-4 pb-6 pt-2 flex flex-col gap-3 border-t">
 
-                <Link
+              <Link
                 href="/siparis"
                 onClick={() => setOpen(false)}
                 className="btn-primary w-full text-center py-3"
@@ -152,7 +150,7 @@ export function Navbar() {
                 Kurye Ol
               </Link>
 
-            
+
 
               <Link
                 href="/giris"
