@@ -82,15 +82,15 @@ export default function AdminPage() {
   const fetchDashboardData = async () => {
     setIsLoading(true)
     try {
-      const [statsRes, ordersRes, couriersRes] = await Promise.all([
+      const [statsRes, ordersRes, couriersRes] = await Promise.allSettled([
         api.get('/admin/stats'),
         api.get('/admin/orders?status=ALL'),
         api.get('/admin/couriers'),
       ])
 
-      if (statsRes.data.success) setStats(statsRes.data.data)
-      if (ordersRes.data.success) setOrders(ordersRes.data.data.orders)
-      if (couriersRes.data.success) setCouriers(couriersRes.data.data.couriers)
+      if (statsRes.status === 'fulfilled' && statsRes.value.data.success) setStats(statsRes.value.data.data)
+      if (ordersRes.status === 'fulfilled' && ordersRes.value.data.success) setOrders(ordersRes.value.data.data.orders)
+      if (couriersRes.status === 'fulfilled' && couriersRes.value.data.success) setCouriers(couriersRes.value.data.data.couriers)
     } catch {
       toast.error('Genel bakış verileri yüklenemedi')
     } finally {
@@ -310,7 +310,7 @@ export default function AdminPage() {
              'Admin Panel'}
           </h1>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => { fetchStats(); fetchTabData() }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#f5f3ef', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.8rem', color: '#4a3020' }}>
+            <button onClick={() => { if (activeTab === 'dashboard') void fetchDashboardData(); else void fetchTabData() }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#f5f3ef', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.8rem', color: '#4a3020' }}>
               <RefreshCw size={13} /> Yenile
             </button>
           </div>
@@ -361,6 +361,12 @@ export default function AdminPage() {
                 </div>
                 <OrderTable orders={orders.slice(0, 6)} couriers={couriers} onAssign={() => {}} compact />
               </div>
+            </div>
+          )}
+
+          {activeTab === 'dashboard' && !stats && !isLoading && (
+            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(28,8,0,0.08)', padding: '32px', color: '#7a6050' }}>
+              Genel bakış verileri yüklenemedi. `Yenile` butonuna basarak tekrar deneyin.
             </div>
           )}
 

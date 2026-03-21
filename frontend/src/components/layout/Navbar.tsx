@@ -136,6 +136,14 @@ export function Navbar() {
             </nav>
 
             <div className="px-4 pb-6 pt-2 flex flex-col gap-3 border-t">
+
+                <Link
+                href="/siparis"
+                onClick={() => setOpen(false)}
+                className="btn-primary w-full text-center py-3"
+              >
+                Kurye Çağır
+              </Link>
               <Link
                 href="/kurye-ol"
                 onClick={() => setOpen(false)}
@@ -144,13 +152,7 @@ export function Navbar() {
                 Kurye Ol
               </Link>
 
-              <Link
-                href="/siparis"
-                onClick={() => setOpen(false)}
-                className="btn-primary w-full text-center py-3"
-              >
-                Kurye Çağır
-              </Link>
+            
 
               <Link
                 href="/giris"
