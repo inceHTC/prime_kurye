@@ -63,7 +63,12 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    fetchTabData()
+    if (activeTab === 'dashboard') {
+      void fetchDashboardData()
+      return
+    }
+
+    void fetchTabData()
   }, [activeTab])
 
   const fetchStats = async () => {
@@ -72,6 +77,25 @@ export default function AdminPage() {
       if (res.data.success) setStats(res.data.data)
     } catch { toast.error('İstatistikler yüklenemedi') }
     finally { setIsLoading(false) }
+  }
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true)
+    try {
+      const [statsRes, ordersRes, couriersRes] = await Promise.all([
+        api.get('/admin/stats'),
+        api.get('/admin/orders?status=ALL'),
+        api.get('/admin/couriers'),
+      ])
+
+      if (statsRes.data.success) setStats(statsRes.data.data)
+      if (ordersRes.data.success) setOrders(ordersRes.data.data.orders)
+      if (couriersRes.data.success) setCouriers(couriersRes.data.data.couriers)
+    } catch {
+      toast.error('Genel bakış verileri yüklenemedi')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const fetchTabData = async () => {
@@ -84,7 +108,7 @@ export default function AdminPage() {
           break
         }
         case 'users': {
-          const res = await api.get(`/admin/users?search=${search}`)
+          const res = await api.get(`/admin/users?role=INDIVIDUAL&search=${search}`)
           if (res.data.success) setUsers(res.data.data.users)
           break
         }
@@ -94,7 +118,7 @@ export default function AdminPage() {
           break
         }
         case 'businesses': {
-          const res = await api.get('/admin/businesses')
+          const res = await api.get(`/admin/businesses?search=${search}`)
           if (res.data.success) setBusinesses(res.data.data.businesses)
           break
         }

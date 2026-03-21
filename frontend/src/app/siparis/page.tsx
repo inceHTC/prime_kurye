@@ -329,6 +329,34 @@ function SiparisContent() {
         recipientLng: recipientGeo.lng,
       }
     } catch (error: any) {
+      const senderDistrict = getDistrictByValue(form.senderDistrict)
+      const recipientDistrict = getDistrictByValue(form.recipientDistrict)
+
+      if (senderDistrict && recipientDistrict) {
+        const senderAddress = buildAddressString(form, 'sender')
+        const recipientAddress = buildAddressString(form, 'recipient')
+
+        setForm((current) => ({
+          ...current,
+          senderAddress,
+          senderLat: senderDistrict.lat,
+          senderLng: senderDistrict.lng,
+          recipientAddress,
+          recipientLat: recipientDistrict.lat,
+          recipientLng: recipientDistrict.lng,
+        }))
+
+        toast('Google Maps doğrulaması kullanılamadı. İlçe merkezine göre yaklaşık konum ile devam ediliyor.', {
+          icon: 'i',
+        })
+
+        return {
+          senderLat: senderDistrict.lat,
+          senderLng: senderDistrict.lng,
+          recipientLat: recipientDistrict.lat,
+          recipientLng: recipientDistrict.lng,
+        }
+      }
       toast.error(error.message || 'Adres doğrulaması yapılamadı')
       return null
     } finally {
@@ -598,7 +626,7 @@ function SiparisContent() {
                   district={form.senderDistrict}
                   neighborhood={form.senderNeighborhood}
                   suggestions={senderSuggestions}
-                  mapsReady={isMapsLoaded}
+                  mapsReady={mapsAutocompleteAvailable}
                   name={form.senderName}
                   phone={form.senderPhone}
                   addressDetail={form.senderAddressDetail}
@@ -619,7 +647,7 @@ function SiparisContent() {
                   district={form.recipientDistrict}
                   neighborhood={form.recipientNeighborhood}
                   suggestions={recipientSuggestions}
-                  mapsReady={isMapsLoaded}
+                  mapsReady={mapsAutocompleteAvailable}
                   name={form.recipientName}
                   phone={form.recipientPhone}
                   addressDetail={form.recipientAddressDetail}
