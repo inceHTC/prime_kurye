@@ -2,14 +2,14 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Zap, Lock, Eye, EyeOff, Loader2, CheckCircle, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '@/lib/api'
 
-export default function SifreYenilePage() {
+function SifreYenileContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const token = searchParams.get('token')
@@ -194,5 +194,20 @@ export default function SifreYenilePage() {
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
+  )
+}
+
+export default function SifreYenilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ minHeight: '100vh', background: '#faf9f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Loader2 size={32} color="#c8860a" style={{ animation: 'spin 1s linear infinite' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      }
+    >
+      <SifreYenileContent />
+    </Suspense>
   )
 }
