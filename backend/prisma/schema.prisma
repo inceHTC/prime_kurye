@@ -40,17 +40,17 @@ enum VehicleType {
 }
 
 enum EscrowStatus {
-  PENDING      // ödeme bekleniyor
-  HELD         // para havuzda bekliyor
-  RELEASED     // sisteme aktarıldı
-  REFUNDED     // iade edildi
+  PENDING
+  HELD
+  RELEASED
+  REFUNDED
 }
 
 enum PayoutStatus {
-  PENDING      // hesaplanmış, ödenmemiş
-  PROCESSING   // işlemde
-  PAID         // ödendi
-  FAILED       // başarısız
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
 }
 
 // ================================
@@ -99,37 +99,44 @@ model Business {
 // KURYE
 // ================================
 model Courier {
-  id              String      @id @default(cuid())
-  userId          String      @unique
-  vehicle         VehicleType @default(MOTORCYCLE)
-  plateNumber     String?
-  isOnline        Boolean     @default(false)
-  isApproved      Boolean     @default(false)
-  currentLat      Float?
-  currentLng      Float?
-  locationUpdated DateTime?
-  rating          Float       @default(0)
-  totalDeliveries Int         @default(0)
-  balance         Float       @default(0)  // toplam birikim
-  weeklyEarnings  Float       @default(0)  // bu haftaki kazanç
-  totalEarnings   Float       @default(0)  // toplam kazanç
-  pendingPayout   Float       @default(0)  // çekilmeyi bekleyen para
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                   String      @id @default(cuid())
+  userId               String      @unique
+  vehicle              VehicleType @default(MOTORCYCLE)
+  plateNumber          String?
+  isOnline             Boolean     @default(false)
+  isApproved           Boolean     @default(false)
+  currentLat           Float?
+  currentLng           Float?
+  locationUpdated      DateTime?
+  rating               Float       @default(0)
+  totalDeliveries      Int         @default(0)
+  balance              Float       @default(0)
+  weeklyEarnings       Float       @default(0)
+  totalEarnings        Float       @default(0)
+  pendingPayout        Float       @default(0)
+
   // Belgeler
-  identityDoc          String?   // Kimlik belgesi
-  licenseDoc           String?   // Ehliyet
-  vehicleDoc           String?   // Araç ruhsatı
-  criminalRecord       String?   // Sabıka kaydı
-  documentsSubmitted   Boolean   @default(false)
+  identityDoc          String?
+  licenseDoc           String?
+  vehicleDoc           String?
+  criminalRecord       String?
+  documentsSubmitted   Boolean     @default(false)
   documentsSubmittedAt DateTime?
 
   // Sözleşme
-  contractSigned       Boolean   @default(false)
+  contractSigned       Boolean     @default(false)
   contractSignedAt     DateTime?
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders          Order[]
-  payouts         Payout[]
+
+  // IBAN bilgisi
+  iban                 String?
+  bankName             String?
+
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders               Order[]
+  payouts              Payout[]
 
   @@map("couriers")
 }
@@ -162,14 +169,14 @@ model Order {
 
   // Paket
   packageDesc      String
-  packageWeight    Float    @default(1)
-  isFragile        Boolean  @default(false)
+  packageWeight    Float        @default(1)
+  isFragile        Boolean      @default(false)
   packageValue     Float?
 
   // Fiyat
   price            Float
   insuranceValue   Float?
-  isPaid           Boolean  @default(false)
+  isPaid           Boolean      @default(false)
 
   // Kurye eşleştirme
   assignedAt           DateTime?
@@ -181,16 +188,16 @@ model Order {
   autoConfirmedAt      DateTime?
 
   // Escrow sistemi
-  escrowAmount     Float?          // havuzdaki para miktarı
-  escrowStatus     EscrowStatus    @default(PENDING)
-  paidAt           DateTime?       // müşteri ödeme yaptığı an
-  confirmedAt      DateTime?       // alıcı teslimi onayladığı an
+  escrowAmount     Float?
+  escrowStatus     EscrowStatus @default(PENDING)
+  paidAt           DateTime?
+  confirmedAt      DateTime?
 
-  // Komisyon hesabı
-  commissionRate   Float    @default(0.20)  // %20 sistem komisyonu
-  commissionAmount Float?                   // komisyon tutarı
-  courierAmount    Float?                   // kuryeye giden tutar
-  taxAmount        Float?                   // vergi tutarı
+  // Komisyon
+  commissionRate   Float        @default(0.20)
+  commissionAmount Float?
+  courierAmount    Float?
+  taxAmount        Float?
 
   // Zaman
   scheduledAt      DateTime?
@@ -201,11 +208,11 @@ model Order {
   // İlişkiler
   businessId       String
   courierId        String?
-  business         Business  @relation(fields: [businessId], references: [id])
-  courier          Courier?  @relation(fields: [courierId], references: [id])
+  business         Business     @relation(fields: [businessId], references: [id])
+  courier          Courier?     @relation(fields: [courierId], references: [id])
 
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@map("orders")
 }
@@ -216,17 +223,17 @@ model Order {
 model Payout {
   id            String       @id @default(cuid())
   courierId     String
-  amount        Float        // toplam kazanç
-  commission    Float        // sistem komisyonu düşüldü
-  tax           Float        // vergi düşüldü
-  netAmount     Float        // kuryeye giden net tutar
+  amount        Float
+  commission    Float
+  tax           Float
+  netAmount     Float
   status        PayoutStatus @default(PENDING)
-  weekStart     DateTime     // hafta başlangıcı
-  weekEnd       DateTime     // hafta sonu
-  paidAt        DateTime?    // ödeme yapıldığı tarih
-  bankName      String?      // banka adı
-  iban          String?      // IBAN
-  note          String?      // admin notu
+  weekStart     DateTime
+  weekEnd       DateTime
+  paidAt        DateTime?
+  bankName      String?
+  iban          String?
+  note          String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -248,4 +255,48 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+}
+
+// ================================
+// SİSTEM AYARLARI
+// ================================
+model SystemSettings {
+  id                   String   @id @default(cuid())
+
+  // Fiyatlandırma
+  basePriceExpress     Float    @default(136.90)
+  basePriceSameDay     Float    @default(94.90)
+  basePriceScheduled   Float    @default(110.90)
+  pricePerKmMoto       Float    @default(4.90)
+  pricePerKmCar        Float    @default(7.90)
+  pricePerKmBike       Float    @default(3.50)
+
+  // Komisyon
+  commissionRate       Float    @default(0.20)
+  taxRate              Float    @default(0.18)
+  courierPayRate       Float    @default(0.80)
+
+  // Operasyon
+  maxDeliveryRadius    Float    @default(15.0)
+  pickupTimeoutMin     Int      @default(45)
+  autoConfirmHours     Int      @default(24)
+  minPayoutAmount      Float    @default(100.0)
+
+  // Çalışma saatleri
+  weekdayStart         String   @default("08:00")
+  weekdayEnd           String   @default("22:00")
+  weekendStart         String   @default("09:00")
+  weekendEnd           String   @default("18:00")
+
+  // Sigorta
+  maxInsuranceAmount   Float    @default(30000.0)
+
+  // Bildirim
+  smsEnabled           Boolean  @default(false)
+  emailEnabled         Boolean  @default(true)
+
+  updatedAt            DateTime @updatedAt
+  updatedBy            String?
+
+  @@map("system_settings")
 }
