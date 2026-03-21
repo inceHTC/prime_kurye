@@ -56,10 +56,11 @@ function LoginContent() {
         else router.push('/dashboard')
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Giriş başarısız')
-    } finally {
-      setIsLoading(false)
-    }
+  const message = error.response?.data?.message
+  if (message?.includes('E-posta')) toast.error('E-posta veya şifre hatalı')
+  else if (message?.includes('askıya')) toast.error('Hesabınız askıya alınmış. Destek ile iletişime geçin.')
+  else toast.error(message || 'Giriş başarısız. Lütfen tekrar deneyin.')
+}
   }
 
   return (

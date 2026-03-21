@@ -104,11 +104,13 @@ function RegisterContent() {
         else if (role === 'BUSINESS') router.push('/dashboard')
         else router.push('/dashboard/bireysel')
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Kayıt başarısız')
-    } finally {
-      setIsLoading(false)
-    }
+ } catch (error: any) {
+  const message = error.response?.data?.message
+  if (message?.includes('E-posta')) toast.error('Bu e-posta adresi zaten kayıtlı')
+  else if (message?.includes('Telefon')) toast.error('Bu telefon numarası zaten kayıtlı')
+  else if (message?.includes('gerekli')) toast.error(message)
+  else toast.error(message || 'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
+}
   }
 
   const activeRole = roles.find((role) => role.value === selectedRole)!

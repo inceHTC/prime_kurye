@@ -8,10 +8,15 @@ const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12')
 
 export async function register(req: Request, res: Response) {
   try {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() })
-    }
+const errors = validationResult(req)
+if (!errors.isEmpty()) {
+  const firstError = errors.array()[0]
+  return res.status(400).json({ 
+    success: false, 
+    message: firstError.msg,
+    errors: errors.array() 
+  })
+}
     const { email, phone, fullName, password, role, companyName } = req.body
     const existing = await prisma.user.findFirst({
       where: { OR: [{ email }, { phone }] },
