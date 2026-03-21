@@ -3,6 +3,7 @@
 import { Suspense, type Dispatch, type ReactNode, type SetStateAction, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useJsApiLoader } from '@react-google-maps/api'
 import {
   ArrowLeft,
   ChevronRight,
@@ -27,6 +28,9 @@ import {
   type DeliveryType,
 } from '@/lib/istanbul'
 
+const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''
+const mapsLibraries: ('places')[] = ['places']
+
 const steps = ['Adresler', 'Paket', 'Özet']
 const anonymousDraftStorageKey = 'prime-kurye-order-draft-anonymous'
 
@@ -45,6 +49,7 @@ type OrderFormState = {
   senderName: string
   senderPhone: string
   senderDistrict: string
+  senderNeighborhood: string
   senderAddressDetail: string
   senderAddress: string
   senderLat: number
@@ -53,6 +58,7 @@ type OrderFormState = {
   recipientName: string
   recipientPhone: string
   recipientDistrict: string
+  recipientNeighborhood: string
   recipientAddressDetail: string
   recipientAddress: string
   recipientLat: number
@@ -67,10 +73,16 @@ type OrderFormState = {
   insuranceValue: number
 }
 
+type NeighborhoodPrediction = {
+  placeId: string
+  label: string
+}
+
 const createDefaultForm = (userName = ''): OrderFormState => ({
   senderName: userName,
   senderPhone: '',
   senderDistrict: '',
+  senderNeighborhood: '',
   senderAddressDetail: '',
   senderAddress: '',
   senderLat: 0,
@@ -79,6 +91,7 @@ const createDefaultForm = (userName = ''): OrderFormState => ({
   recipientName: '',
   recipientPhone: '',
   recipientDistrict: '',
+  recipientNeighborhood: '',
   recipientAddressDetail: '',
   recipientAddress: '',
   recipientLat: 0,
@@ -97,12 +110,19 @@ function SiparisContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { accessToken, user } = useAuthStore()
+  const { isLoaded: isMapsLoaded } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_KEY,
+    libraries: mapsLibraries,
+  })
 
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [isGeocoding, setIsGeocoding] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const [priceEstimate, setPriceEstimate] = useState<any>(null)
   const [form, setForm] = useState<OrderFormState>(() => createDefaultForm())
+  const [senderSuggestions, setSenderSuggestions] = useState<NeighborhoodPrediction[]>([])
+  const [recipientSuggestions, setRecipientSuggestions] = useState<NeighborhoodPrediction[]>([])
 
   const getUserDraftStorageKey = (userId?: string) => (userId ? `prime-kurye-order-draft-${userId}` : null)
 
@@ -180,11 +200,9 @@ function SiparisContent() {
     }
 
     nextForm.insuranceValue = 0
-    syncDistrictFields(nextForm, 'sender')
-    syncDistrictFields(nextForm, 'recipient')
 
     setForm(nextForm)
-    if (searchParams.get('resume') === 'checkout' && isAddressStepValid(nextForm) && nextForm.packageDesc.trim()) {
+    if (searchParams.get('resume') === 'checkout' && isAddressStepTextValid(nextForm) && nextForm.packageDesc.trim()) {
       setCurrentStep(2)
     }
     setIsHydrated(true)
@@ -201,11 +219,114 @@ function SiparisContent() {
     window.localStorage.setItem(targetKey, JSON.stringify(form))
   }, [form, isHydrated, user?.id])
 
-  const handleEstimate = async () => {
-    if (!form.senderLat || !form.recipientLat) {
+  useEffect(() => {
+    void updateNeighborhoodSuggestions('sender', form.senderDistrict, form.senderNeighborhood)
+  }, [form.senderDistrict, form.senderNeighborhood, isMapsLoaded])
+
+  useEffect(() => {
+    void updateNeighborhoodSuggestions('recipient', form.recipientDistrict, form.recipientNeighborhood)
+  }, [form.recipientDistrict, form.recipientNeighborhood, isMapsLoaded])
+
+  const updateNeighborhoodSuggestions = async (
+    prefix: 'sender' | 'recipient',
+    districtValue: string,
+    query: string
+  ) => {
+    if (!isMapsLoaded || !districtValue || query.trim().length < 2 || !window.google?.maps?.places) {
+      if (prefix === 'sender') setSenderSuggestions([])
+      else setRecipientSuggestions([])
+      return
+    }
+
+    const districtLabel = formatDistrictLabel(districtValue)
+    const service = new window.google.maps.places.AutocompleteService()
+
+    const predictions = await new Promise<google.maps.places.AutocompletePrediction[]>((resolve) => {
+      service.getPlacePredictions(
+        {
+          input: `${query}, ${districtLabel}, İstanbul, Türkiye`,
+          componentRestrictions: { country: 'tr' },
+          types: ['geocode'],
+        },
+        (result) => resolve(result || [])
+      )
+    })
+
+    const items = predictions
+      .map((prediction) => ({
+        placeId: prediction.place_id,
+        label: extractNeighborhoodLabel(prediction.description, districtLabel),
+      }))
+      .filter((item) => item.label.length > 0)
+      .filter((item, index, list) => list.findIndex((candidate) => candidate.label === item.label) === index)
+      .slice(0, 6)
+
+    if (prefix === 'sender') setSenderSuggestions(items)
+    else setRecipientSuggestions(items)
+  }
+
+  const geocodeFullAddress = async (address: string) => {
+    if (!isMapsLoaded || !window.google?.maps?.Geocoder) {
+      throw new Error('Harita servisi hazır değil')
+    }
+
+    const geocoder = new window.google.maps.Geocoder()
+    const response = await geocoder.geocode({ address, region: 'tr' })
+    const result = response.results[0]
+
+    if (!result?.geometry?.location) {
+      throw new Error('Adres koordinatı alınamadı')
+    }
+
+    return {
+      formattedAddress: result.formatted_address,
+      lat: result.geometry.location.lat(),
+      lng: result.geometry.location.lng(),
+    }
+  }
+
+  const geocodeAddressPair = async () => {
+    if (!isAddressStepTextValid(form)) {
+      toast.error('Lütfen alım ve teslimat bilgilerini eksiksiz girin')
       return null
     }
 
+    setIsGeocoding(true)
+
+    try {
+      const senderRawAddress = buildAddressString(form, 'sender')
+      const recipientRawAddress = buildAddressString(form, 'recipient')
+
+      const [senderGeo, recipientGeo] = await Promise.all([
+        geocodeFullAddress(senderRawAddress),
+        geocodeFullAddress(recipientRawAddress),
+      ])
+
+      setForm((current) => ({
+        ...current,
+        senderAddress: senderGeo.formattedAddress,
+        senderLat: senderGeo.lat,
+        senderLng: senderGeo.lng,
+        recipientAddress: recipientGeo.formattedAddress,
+        recipientLat: recipientGeo.lat,
+        recipientLng: recipientGeo.lng,
+      }))
+
+      return {
+        senderLat: senderGeo.lat,
+        senderLng: senderGeo.lng,
+        recipientLat: recipientGeo.lat,
+        recipientLng: recipientGeo.lng,
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Adres doğrulaması yapılamadı')
+      return null
+    } finally {
+      setIsGeocoding(false)
+    }
+  }
+
+  const handleEstimate = async () => {
     const fallbackEstimate = calculateManualEstimate({
       pickupDistrict: form.senderDistrict,
       dropoffDistrict: form.recipientDistrict,
@@ -213,12 +334,29 @@ function SiparisContent() {
       isFragile: form.isFragile,
     })
 
+    let senderLat = form.senderLat
+    let senderLng = form.senderLng
+    let recipientLat = form.recipientLat
+    let recipientLng = form.recipientLng
+
+    if (!senderLat || !recipientLat) {
+      const geocoded = await geocodeAddressPair()
+      if (!geocoded) {
+        return null
+      }
+
+      senderLat = geocoded.senderLat
+      senderLng = geocoded.senderLng
+      recipientLat = geocoded.recipientLat
+      recipientLng = geocoded.recipientLng
+    }
+
     try {
       const estimate = await orderService.estimatePrice({
-        senderLat: form.senderLat,
-        senderLng: form.senderLng,
-        recipientLat: form.recipientLat,
-        recipientLng: form.recipientLng,
+        senderLat,
+        senderLng,
+        recipientLat,
+        recipientLng,
         deliveryType: form.deliveryType,
         vehicle: form.vehicle,
         isFragile: form.isFragile,
@@ -240,15 +378,15 @@ function SiparisContent() {
 
   const handleNextStep = async () => {
     if (currentStep === 0) {
-      if (!isAddressStepValid(form)) {
-        toast.error('Lutfen alim ve teslimat bilgilerini eksiksiz girin')
+      const geocoded = await geocodeAddressPair()
+      if (!geocoded) {
         return
       }
     }
 
     if (currentStep === 1) {
       if (!form.packageDesc.trim()) {
-        toast.error('Lutfen paket icerigini girin')
+        toast.error('Lütfen paket içeriğini girin')
         return
       }
 
@@ -284,8 +422,33 @@ function SiparisContent() {
     setIsLoading(true)
 
     try {
+      if (!form.senderLat || !form.recipientLat) {
+        const geocoded = await geocodeAddressPair()
+        if (!geocoded) {
+          setIsLoading(false)
+          return
+        }
+      }
+
       const response = await orderService.createOrder({
-        ...form,
+        senderName: form.senderName,
+        senderPhone: form.senderPhone,
+        senderAddress: form.senderAddress || buildAddressString(form, 'sender'),
+        senderLat: form.senderLat,
+        senderLng: form.senderLng,
+        senderNotes: form.senderNotes,
+        recipientName: form.recipientName,
+        recipientPhone: form.recipientPhone,
+        recipientAddress: form.recipientAddress || buildAddressString(form, 'recipient'),
+        recipientLat: form.recipientLat,
+        recipientLng: form.recipientLng,
+        recipientNotes: form.recipientNotes,
+        packageDesc: form.packageDesc,
+        packageWeight: form.packageWeight,
+        isFragile: form.isFragile,
+        packageValue: form.packageValue,
+        deliveryType: form.deliveryType,
+        vehicle: form.vehicle,
         insuranceValue: 0,
       })
 
@@ -423,11 +586,16 @@ function SiparisContent() {
                   accentClass="text-blue-700"
                   icon={<UserRound className="w-4 h-4 text-blue-600" />}
                   district={form.senderDistrict}
+                  neighborhood={form.senderNeighborhood}
+                  suggestions={senderSuggestions}
+                  mapsReady={isMapsLoaded}
                   name={form.senderName}
                   phone={form.senderPhone}
                   addressDetail={form.senderAddressDetail}
                   notes={form.senderNotes}
                   onDistrictChange={(value) => handleDistrictChange('sender', value, setForm)}
+                  onNeighborhoodChange={(value) => handleNeighborhoodChange('sender', value, setForm)}
+                  onNeighborhoodSelect={(value) => selectNeighborhood('sender', value, setForm, setSenderSuggestions)}
                   onNameChange={(value) => setForm((current) => ({ ...current, senderName: value }))}
                   onPhoneChange={(value) => setForm((current) => ({ ...current, senderPhone: sanitizePhone(value) }))}
                   onAddressDetailChange={(value) => setForm((current) => updateFullAddress({ ...current, senderAddressDetail: value }, 'sender'))}
@@ -439,11 +607,16 @@ function SiparisContent() {
                   accentClass="text-red-600"
                   icon={<MapPin className="w-4 h-4 text-red-500" />}
                   district={form.recipientDistrict}
+                  neighborhood={form.recipientNeighborhood}
+                  suggestions={recipientSuggestions}
+                  mapsReady={isMapsLoaded}
                   name={form.recipientName}
                   phone={form.recipientPhone}
                   addressDetail={form.recipientAddressDetail}
                   notes={form.recipientNotes}
                   onDistrictChange={(value) => handleDistrictChange('recipient', value, setForm)}
+                  onNeighborhoodChange={(value) => handleNeighborhoodChange('recipient', value, setForm)}
+                  onNeighborhoodSelect={(value) => selectNeighborhood('recipient', value, setForm, setRecipientSuggestions)}
                   onNameChange={(value) => setForm((current) => ({ ...current, recipientName: value }))}
                   onPhoneChange={(value) => setForm((current) => ({ ...current, recipientPhone: sanitizePhone(value) }))}
                   onAddressDetailChange={(value) =>
@@ -634,11 +807,16 @@ function AddressCard({
   icon,
   accentClass,
   district,
+  neighborhood,
+  suggestions,
+  mapsReady,
   name,
   phone,
   addressDetail,
   notes,
   onDistrictChange,
+  onNeighborhoodChange,
+  onNeighborhoodSelect,
   onNameChange,
   onPhoneChange,
   onAddressDetailChange,
@@ -648,16 +826,23 @@ function AddressCard({
   icon: ReactNode
   accentClass: string
   district: string
+  neighborhood: string
+  suggestions: NeighborhoodPrediction[]
+  mapsReady: boolean
   name: string
   phone: string
   addressDetail: string
   notes: string
   onDistrictChange: (value: string) => void
+  onNeighborhoodChange: (value: string) => void
+  onNeighborhoodSelect: (value: string) => void
   onNameChange: (value: string) => void
   onPhoneChange: (value: string) => void
   onAddressDetailChange: (value: string) => void
   onNotesChange: (value: string) => void
 }) {
+  const datalistId = `${title}-mahalle-listesi`
+
   return (
     <div className="card p-5">
       <h3 className={cn('font-semibold mb-3 flex items-center gap-2', accentClass)}>
@@ -681,11 +866,39 @@ function AddressCard({
             </option>
           ))}
         </select>
+        <div>
+          <input
+            type="text"
+            className="input"
+            value={neighborhood}
+            list={suggestions.length ? datalistId : undefined}
+            placeholder={district ? 'Mahalle yazın ve listeden seçin' : 'Önce ilçe seçin'}
+            onChange={(event) => {
+              onNeighborhoodChange(event.target.value)
+              onNeighborhoodSelect(event.target.value)
+            }}
+            disabled={!district}
+          />
+          {Boolean(suggestions.length) && (
+            <datalist id={datalistId}>
+              {suggestions.map((item) => (
+                <option key={item.placeId} value={item.label} />
+              ))}
+            </datalist>
+          )}
+          <p className="text-[11px] text-dark-400 mt-1">
+            {mapsReady
+              ? district
+                ? 'Google Maps önerileri ile mahalle seçebilirsiniz.'
+                : 'Mahalle seçimi için önce ilçe belirleyin.'
+              : 'Google Maps yükleniyor...'}
+          </p>
+        </div>
         <input
           type="text"
           className="input"
           value={addressDetail}
-          placeholder="Mahalle / Sokak / Bina No"
+          placeholder="Sokak / bina no / kapı bilgisi"
           onChange={(event) => onAddressDetailChange(event.target.value)}
         />
         <input
@@ -730,44 +943,26 @@ function sanitizePhone(value: string) {
   return value.replace(/\D/g, '').substring(0, 11)
 }
 
-function syncDistrictFields(form: OrderFormState, prefix: 'sender' | 'recipient') {
+function buildAddressString(form: OrderFormState, prefix: 'sender' | 'recipient') {
   const districtValue = prefix === 'sender' ? form.senderDistrict : form.recipientDistrict
-  const district = districtValue ? getDistrictByValue(districtValue) : null
+  const districtLabel = districtValue ? formatDistrictLabel(districtValue) : ''
+  const neighborhood = prefix === 'sender' ? form.senderNeighborhood.trim() : form.recipientNeighborhood.trim()
+  const detail = prefix === 'sender' ? form.senderAddressDetail.trim() : form.recipientAddressDetail.trim()
 
-  if (!district) {
-    if (prefix === 'sender') {
-      form.senderLat = 0
-      form.senderLng = 0
-      form.senderAddress = form.senderAddressDetail.trim()
-    } else {
-      form.recipientLat = 0
-      form.recipientLng = 0
-      form.recipientAddress = form.recipientAddressDetail.trim()
-    }
-    return
-  }
-
-  if (prefix === 'sender') {
-    form.senderLat = district.lat
-    form.senderLng = district.lng
-  } else {
-    form.recipientLat = district.lat
-    form.recipientLng = district.lng
-  }
-
-  updateFullAddress(form, prefix)
+  return [detail, neighborhood, districtLabel, 'İstanbul', 'Türkiye'].filter(Boolean).join(', ')
 }
 
 function updateFullAddress(form: OrderFormState, prefix: 'sender' | 'recipient') {
-  const districtValue = prefix === 'sender' ? form.senderDistrict : form.recipientDistrict
-  const districtLabel = districtValue ? formatDistrictLabel(districtValue) : ''
-  const detail = prefix === 'sender' ? form.senderAddressDetail.trim() : form.recipientAddressDetail.trim()
-  const address = [detail, districtLabel, 'Istanbul'].filter(Boolean).join(', ')
+  const address = buildAddressString(form, prefix)
 
   if (prefix === 'sender') {
     form.senderAddress = address
+    form.senderLat = 0
+    form.senderLng = 0
   } else {
     form.recipientAddress = address
+    form.recipientLat = 0
+    form.recipientLng = 0
   }
 
   return form
@@ -783,26 +978,69 @@ function handleDistrictChange(
 
     if (prefix === 'sender') {
       updated.senderDistrict = districtValue
+      updated.senderNeighborhood = ''
     } else {
       updated.recipientDistrict = districtValue
+      updated.recipientNeighborhood = ''
     }
 
-    syncDistrictFields(updated, prefix)
-    return updated
+    return updateFullAddress(updated, prefix)
   })
 }
 
-function isAddressStepValid(form: OrderFormState) {
+function handleNeighborhoodChange(
+  prefix: 'sender' | 'recipient',
+  value: string,
+  setForm: Dispatch<SetStateAction<OrderFormState>>
+) {
+  setForm((current) => {
+    const updated = { ...current }
+
+    if (prefix === 'sender') {
+      updated.senderNeighborhood = value
+    } else {
+      updated.recipientNeighborhood = value
+    }
+
+    return updateFullAddress(updated, prefix)
+  })
+}
+
+function selectNeighborhood(
+  prefix: 'sender' | 'recipient',
+  value: string,
+  setForm: Dispatch<SetStateAction<OrderFormState>>,
+  clearSuggestions: Dispatch<SetStateAction<NeighborhoodPrediction[]>>
+) {
+  clearSuggestions((current) => current.filter((item) => item.label.toLowerCase().includes(value.trim().toLowerCase())))
+  handleNeighborhoodChange(prefix, value, setForm)
+}
+
+function isAddressStepTextValid(form: OrderFormState) {
   return Boolean(
     form.senderName.trim() &&
       form.senderPhone.trim() &&
       form.senderDistrict &&
+      form.senderNeighborhood.trim() &&
       form.senderAddressDetail.trim() &&
-      form.senderAddress.trim() &&
       form.recipientName.trim() &&
       form.recipientPhone.trim() &&
       form.recipientDistrict &&
-      form.recipientAddressDetail.trim() &&
-      form.recipientAddress.trim()
+      form.recipientNeighborhood.trim() &&
+      form.recipientAddressDetail.trim()
   )
+}
+
+function extractNeighborhoodLabel(description: string, districtLabel: string) {
+  const parts = description.split(',').map((item) => item.trim())
+  const filtered = parts.filter(
+    (item) =>
+      item &&
+      item.toLowerCase() !== districtLabel.toLowerCase() &&
+      item.toLowerCase() !== 'istanbul' &&
+      item.toLowerCase() !== 'türkiye' &&
+      item.toLowerCase() !== 'turkiye'
+  )
+
+  return filtered[0] || ''
 }

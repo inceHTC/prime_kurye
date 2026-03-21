@@ -392,9 +392,7 @@ function OrderCard({ order, onAccept, onReject, onUpdateStatus }: {
   </label>
 )}
         <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-            order.status === 'PICKING_UP' ? order.senderAddress : order.recipientAddress
-          )}`}
+          href={getCourierNavigationUrl(order)}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -414,4 +412,17 @@ function OrderCard({ order, onAccept, onReject, onUpdateStatus }: {
       </div>
     </div>
   )
+}
+
+function getCourierNavigationUrl(order: any) {
+  const isPickup = order.status === 'PICKING_UP'
+  const lat = isPickup ? order.senderLat : order.recipientLat
+  const lng = isPickup ? order.senderLng : order.recipientLng
+  const fallbackAddress = isPickup ? order.senderAddress : order.recipientAddress
+
+  if (typeof lat === 'number' && typeof lng === 'number' && lat && lng) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+  }
+
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fallbackAddress)}`
 }
