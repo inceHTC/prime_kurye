@@ -3,8 +3,11 @@ import { forgotPassword, resetPassword, verifyResetToken } from '../controllers/
 
 const router = Router()
 
-router.post('/forgot', forgotPassword)
-router.post('/reset', resetPassword)
+router.post('/forgot-password', forgotPassword) 
+
+
+router.post('/reset-password', resetPassword) 
+
 router.get('/verify/:token', verifyResetToken)
 
 export default router
