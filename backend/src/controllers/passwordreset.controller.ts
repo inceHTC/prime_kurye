@@ -44,7 +44,7 @@ export async function forgotPassword(req: Request, res: Response) {
 
     // E-posta gönder
     await resend.emails.send({
-      from: 'Prime Kurye <noreply@primekurye.com>',
+      from: 'Vın Kurye <noreply@primekurye.com>',
       to: user.email,
       subject: 'Şifre Sıfırlama Talebi',
       html: `
@@ -60,7 +60,7 @@ export async function forgotPassword(req: Request, res: Response) {
             <!-- Header -->
             <div style="background:#1c0800;borderRadius:12px 12px 0 0;padding:28px 32px;text-align:center;">
               <h1 style="margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">
-                PRIME<span style="color:#c8860a;">KURYE</span>
+                VIN<span style="color:#c8860a;">KURYE</span>
               </h1>
             </div>
 
@@ -93,7 +93,7 @@ export async function forgotPassword(req: Request, res: Response) {
             <!-- Footer -->
             <div style="background:#faf9f7;padding:20px 32px;border:1px solid rgba(28,8,0,0.06);border-top:none;border-radius:0 0 12px 12px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#a89080;">
-                © ${new Date().getFullYear()} Prime Kurye · İstanbul, Türkiye
+                © ${new Date().getFullYear()} Vın Kurye · İstanbul, Türkiye
               </p>
             </div>
 
