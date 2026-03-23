@@ -897,7 +897,7 @@ function AddressCard({
           onChange={(event) => onPhoneChange(event.target.value)}
         />
         <select className="input" value={district} onChange={(event) => onDistrictChange(event.target.value)}>
-          <option value="">İstanbul içi ilçe seçin</option>
+          <option value="">İlçe seçin</option>
           {ISTANBUL_DISTRICTS.map((districtOption) => (
             <option key={districtOption.value} value={districtOption.value}>
               {districtOption.label}
