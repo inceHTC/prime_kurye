@@ -17,6 +17,28 @@ type RetriableRequestConfig = {
   headers?: Record<string, string>
 }
 
+function getAccessToken(): string | null {
+  // Önce Zustand store'dan oku (login sonrası anında güncellenir)
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useAuthStore } = require('@/store/authStore')
+    const token = useAuthStore.getState().accessToken
+    if (token) return token
+  } catch {
+    // store henüz yüklenmediyse localStorage'a düş
+  }
+
+  if (typeof window === 'undefined') return null
+  const stored = localStorage.getItem('prime-kurye-auth')
+  if (!stored) return null
+  try {
+    const parsed = JSON.parse(stored) as PersistedAuthState
+    return parsed?.state?.accessToken ?? null
+  } catch {
+    return null
+  }
+}
+
 function getStoredAuth() {
   if (typeof window === 'undefined') {
     return null
@@ -65,7 +87,12 @@ function clearStoredAuthAndRedirect() {
 
   localStorage.removeItem('prime-kurye-auth')
 
-  if (window.location.pathname !== '/giris') {
+  const pathname = window.location.pathname
+  if (pathname.startsWith('/admin')) {
+    if (pathname !== '/admin/giris') {
+      window.location.href = '/admin/giris'
+    }
+  } else if (pathname !== '/giris') {
     window.location.href = '/giris'
   }
 }
@@ -73,8 +100,7 @@ function clearStoredAuthAndRedirect() {
 let refreshPromise: Promise<{ accessToken: string; refreshToken: string } | null> | null = null
 
 api.interceptors.request.use((config) => {
-  const stored = getStoredAuth()
-  const accessToken = stored?.state?.accessToken
+  const accessToken = getAccessToken()
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`
