@@ -43,9 +43,9 @@ const deliveryTypes: Array<{
   desc: string
   price: string
 }> = [
-  { value: 'EXPRESS', label: 'Ekspres', desc: '1-2 saat', price: '200 TL+' },
-  { value: 'SAME_DAY', label: 'Aynı Gün', desc: 'Gün sonu', price: '94,90 TL+' },
-  { value: 'SCHEDULED', label: 'Planlı', desc: 'Seçilen saat', price: '110,90 TL+' },
+  { value: 'EXPRESS', label: 'Ekspres', desc: '1-2 saat', price: '110 TL+' },
+  { value: 'SAME_DAY', label: 'Aynı Gün', desc: 'Gün sonu', price: '80 TL+' },
+  { value: 'SCHEDULED', label: 'Planlı', desc: 'Seçilen saat', price: '68 TL+' },
 ]
 
 type OrderFormState = {

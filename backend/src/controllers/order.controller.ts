@@ -15,26 +15,17 @@ function generateTrackingCode(): string {
   return `${prefix}${timestamp}${random}`
 }
 
-function calculatePrice(distance: number, deliveryType: string, isFragile = false, packageValue = 0): number {
-  const basePrices: Record<string, number> = {
-    EXPRESS: 136.9,
-    SAME_DAY: 94.9,
-    SCHEDULED: 110.9,
-  }
-
-  const kmPrice = 4.9 * distance
-  const base = basePrices[deliveryType] || 136.9
-  const multiplier = deliveryType === 'EXPRESS' ? 1 : 0.9
-  let totalPrice = (base + kmPrice) * multiplier
-
-  if (isFragile) totalPrice += 25
-  if (packageValue > 0) totalPrice += packageValue * 0.02
-
-  return Math.round(totalPrice * 100) / 100
+// Boğaz eşiği: doğusu Anadolu, batısı Avrupa
+// Sarıyer gibi Avrupa'nın kuzey ucu (lng>29.05) ve Beykoz (Asia) ayrımı için
+// lat 40.85-41.30 aralığında lng 29.05 sınırı kullanılır
+function isAsianSide(lat: number, lng: number): boolean {
+  // Adalar hariç: lng > 29.05 ve İstanbul sınırları içinde → Anadolu
+  if (lat >= 40.78 && lat <= 41.30 && lng > 29.05) return true
+  return false
 }
 
-function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const earthRadiusKm = 6371
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
   const dLng = ((lng2 - lng1) * Math.PI) / 180
   const a =
@@ -42,18 +33,59 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
     Math.cos((lat1 * Math.PI) / 180) *
       Math.cos((lat2 * Math.PI) / 180) *
       Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
 
-  return Math.round(earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10
+// Kademeli km ücreti: 0-10km→9₺, 10-25km→7₺, 25km+→5₺
+function tieredKmCost(km: number): number {
+  if (km <= 10) return km * 9
+  if (km <= 25) return 10 * 9 + (km - 10) * 7
+  return 10 * 9 + 15 * 7 + (km - 25) * 5
+}
+
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const birdKm    = haversineKm(lat1, lng1, lat2, lng2)
+  const crossSide = isAsianSide(lat1, lng1) !== isAsianSide(lat2, lng2)
+  const roadKm    = Math.max(3, birdKm * (crossSide ? 1.85 : 1.35))
+  return Math.round(roadKm * 10) / 10
+}
+
+function calculatePrice(
+  roadKm: number,
+  deliveryType: string,
+  isFragile = false,
+  packageWeight = 1,
+  _packageValue = 0,
+  senderLat?: number, senderLng?: number,
+  recipientLat?: number, recipientLng?: number,
+): number {
+  const BASE    = 65
+  const kmCost  = tieredKmCost(roadKm)
+  const fragile = isFragile ? 30 : 0
+  const weight  = packageWeight > 15 ? 60 : packageWeight > 5 ? 30 : 0
+  const subtotal = BASE + kmCost + fragile + weight
+
+  const config: Record<string, { multiplier: number; min: number }> = {
+    EXPRESS:   { multiplier: 1.40, min: 110 },
+    SAME_DAY:  { multiplier: 1.00, min:  80 },
+    SCHEDULED: { multiplier: 0.85, min:  68 },
+  }
+  const { multiplier, min } = config[deliveryType] ?? config.EXPRESS
+
+  return Math.max(min, Math.round(subtotal * multiplier))
 }
 
 export async function estimatePrice(req: Request, res: Response) {
   try {
-    const { senderLat, senderLng, recipientLat, recipientLng, deliveryType, isFragile, packageValue } = req.body
-    const distance = calculateDistance(senderLat, senderLng, recipientLat, recipientLng)
-    const price = calculatePrice(distance, deliveryType || 'EXPRESS', isFragile, Number(packageValue) || 0)
-    const estimatedMinutes = deliveryType === 'EXPRESS' ? Math.round(distance * 3 + 20) : Math.round(distance * 3 + 60)
+    const { senderLat, senderLng, recipientLat, recipientLng, deliveryType, isFragile, packageWeight } = req.body
+    const crossSide = isAsianSide(Number(senderLat), Number(senderLng)) !== isAsianSide(Number(recipientLat), Number(recipientLng))
+    const distance  = calculateDistance(Number(senderLat), Number(senderLng), Number(recipientLat), Number(recipientLng))
+    const price     = calculatePrice(distance, deliveryType || 'EXPRESS', isFragile, Number(packageWeight) || 1)
+    const bridgeExtra = crossSide ? 20 : 0
+    const speedFactor = deliveryType === 'EXPRESS' ? 3.0 : 3.8
+    const estimatedMinutes = Math.max(20, Math.round(distance * speedFactor) + bridgeExtra)
 
-    return res.json({ success: true, data: { distance, price, estimatedMinutes } })
+    return res.json({ success: true, data: { distance, price, estimatedMinutes, crossSide } })
   } catch {
     return res.status(500).json({ success: false, message: 'Sunucu hatası' })
   }
@@ -109,8 +141,8 @@ export async function createOrder(req: Request, res: Response) {
       scheduledAt,
     } = req.body
 
-    const distance = calculateDistance(senderLat, senderLng, recipientLat, recipientLng)
-    const price = calculatePrice(distance, deliveryType, isFragile, Number(packageValue) || 0)
+    const distance = calculateDistance(Number(senderLat), Number(senderLng), Number(recipientLat), Number(recipientLng))
+    const price = calculatePrice(distance, deliveryType, isFragile, Number(packageWeight) || 1)
     const trackingCode = generateTrackingCode()
 
     const order = await prisma.order.create({
