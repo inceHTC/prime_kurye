@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Menu, X, LayoutDashboard, LogOut } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
 
 const navItems = [
   { label: 'Hizmetler', href: '#hizmetler' },
@@ -14,6 +16,20 @@ const navItems = [
 export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { user, accessToken, _hasHydrated, clearAuth } = useAuthStore()
+  const router = useRouter()
+
+  const isLoggedIn = _hasHydrated && !!accessToken
+  const dashboardHref =
+    user?.role === 'ADMIN' ? '/admin' :
+    user?.role === 'COURIER' ? '/kurye' :
+    '/dashboard'
+
+  const handleLogout = () => {
+    clearAuth()
+    router.push('/')
+    setOpen(false)
+  }
 
   // ✅ hydration fix
   useEffect(() => {
@@ -38,12 +54,25 @@ export function Navbar() {
           <Link href="/takip" className="text-white/60 hover:text-white/90 text-xs transition-colors">
             Gönderi Takip
           </Link>
-          <Link href="/kurye-ol" className="text-white/60 hover:text-white/90 text-xs transition-colors">
-            Kurye Ol
-          </Link>
-          <Link href="/giris" className="text-white/60 hover:text-white/90 text-xs transition-colors">
-            Giriş Yap
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link href={dashboardHref} className="text-white/60 hover:text-white/90 text-xs transition-colors">
+                {user?.fullName?.split(' ')[0]}
+              </Link>
+              <button onClick={handleLogout} className="text-white/60 hover:text-white/90 text-xs transition-colors bg-transparent border-none cursor-pointer">
+                Çıkış Yap
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/kurye-ol" className="text-white/60 hover:text-white/90 text-xs transition-colors">
+                Kurye Ol
+              </Link>
+              <Link href="/giris" className="text-white/60 hover:text-white/90 text-xs transition-colors">
+                Giriş Yap
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -86,19 +115,39 @@ export function Navbar() {
 
           {/* CTA: flex-shrink-0 ile sağda sabit durmasını sağladık */}
           <div className="hidden md:flex items-center gap-3 flex-shrink-0">
-            <Link
-              href="/kurye-ol"
-              className="btn-outline text-sm px-5 py-2.5 border border-[#c8860a] text-[#c8860a] rounded-lg hover:bg-[#c8860a] hover:text-white transition"
-            >
-              Kurye Ol
-            </Link>
-
-            <Link
-              href="/siparis"
-              className="btn-primary text-sm px-5 py-2.5 bg-[#c8860a] text-white rounded-lg shadow-md hover:bg-[#a87008] transition"
-            >
-              Kurye Çağır
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href={dashboardHref}
+                  className="flex items-center gap-2 text-sm px-5 py-2.5 border border-[#c8860a] text-[#c8860a] rounded-lg hover:bg-[#c8860a] hover:text-white transition"
+                >
+                  <LayoutDashboard size={14} />
+                  {user?.role === 'COURIER' ? 'Kurye Paneli' : user?.role === 'ADMIN' ? 'Admin Panel' : 'Panelim'}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-sm px-5 py-2.5 bg-[#c8860a] text-white rounded-lg shadow-md hover:bg-[#a87008] transition border-none cursor-pointer"
+                >
+                  <LogOut size={14} />
+                  Çıkış
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/kurye-ol"
+                  className="btn-outline text-sm px-5 py-2.5 border border-[#c8860a] text-[#c8860a] rounded-lg hover:bg-[#c8860a] hover:text-white transition"
+                >
+                  Kurye Ol
+                </Link>
+                <Link
+                  href="/siparis"
+                  className="btn-primary text-sm px-5 py-2.5 bg-[#c8860a] text-white rounded-lg shadow-md hover:bg-[#a87008] transition"
+                >
+                  Kurye Çağır
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -134,31 +183,48 @@ export function Navbar() {
             </nav>
 
             <div className="px-4 pb-6 pt-2 flex flex-col gap-3 border-t">
-
-              <Link
-                href="/siparis"
-                onClick={() => setOpen(false)}
-                className="btn-primary w-full text-center py-3"
-              >
-                Kurye Çağır
-              </Link>
-              <Link
-                href="/kurye-ol"
-                onClick={() => setOpen(false)}
-                className="btn-outline w-full text-center py-3"
-              >
-                Kurye Ol
-              </Link>
-
-
-
-              <Link
-                href="/giris"
-                onClick={() => setOpen(false)}
-                className="text-center py-3 text-sm font-semibold text-[#a89080] hover:text-[#1c0800]"
-              >
-                Giriş Yap
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href={dashboardHref}
+                    onClick={() => setOpen(false)}
+                    className="btn-primary w-full text-center py-3 flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard size={16} />
+                    {user?.role === 'COURIER' ? 'Kurye Paneli' : user?.role === 'ADMIN' ? 'Admin Panel' : 'Panelim'}
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-center py-3 text-sm font-semibold text-[#a89080] hover:text-[#1c0800] bg-transparent border-none cursor-pointer"
+                  >
+                    Çıkış Yap
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/siparis"
+                    onClick={() => setOpen(false)}
+                    className="btn-primary w-full text-center py-3"
+                  >
+                    Kurye Çağır
+                  </Link>
+                  <Link
+                    href="/kurye-ol"
+                    onClick={() => setOpen(false)}
+                    className="btn-outline w-full text-center py-3"
+                  >
+                    Kurye Ol
+                  </Link>
+                  <Link
+                    href="/giris"
+                    onClick={() => setOpen(false)}
+                    className="text-center py-3 text-sm font-semibold text-[#a89080] hover:text-[#1c0800]"
+                  >
+                    Giriş Yap
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
