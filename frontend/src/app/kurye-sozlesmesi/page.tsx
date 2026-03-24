@@ -125,7 +125,7 @@ export default function KuryeSozlesmesiPage() {
 
           {/* İletişim */}
           <div style={{ marginTop: 32, padding: '16px 20px', background: '#faf9f7', borderRadius: 10, fontSize: '0.82rem', color: '#a89080' }}>
-            <strong style={{ color: '#4a3020' }}>İletişim:</strong> Vın Kurye · destek@primekurye.com · +90 212 123 45 67
+            <strong style={{ color: '#4a3020' }}>İletişim:</strong> Vın Kurye · destek@vinkurye.com · +90 212 123 45 67
           </div>
         </div>
 

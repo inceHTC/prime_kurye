@@ -96,7 +96,7 @@ export default function CerezPage() {
           </Section>
 
           <Section title="5. İletişim">
-            <p>Çerez politikamız hakkında sorularınız için: <strong>destek@primekurye.com</strong></p>
+            <p>Çerez politikamız hakkında sorularınız için: <strong>destek@vinkurye.com</strong></p>
           </Section>
 
         </div>

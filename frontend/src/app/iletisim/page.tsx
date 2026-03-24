@@ -28,7 +28,7 @@ export default function IletisimPage() {
 
   const contacts = [
     { icon: Phone, label: 'Telefon', value: '0212 123 45 67', href: 'tel:+902121234567', sub: 'Hf içi 08:00-22:00' },
-    { icon: Mail, label: 'E-posta', value: 'destek@primekurye.com', href: 'mailto:destek@primekurye.com', sub: '24 saat içinde yanıt' },
+    { icon: Mail, label: 'E-posta', value: 'destek@vinkurye.com', href: 'mailto:destek@vinkurye.com', sub: '24 saat içinde yanıt' },
     { icon: MapPin, label: 'Adres', value: 'İstanbul, Türkiye', href: '#', sub: 'Tüm İstanbul\'a hizmet' },
     { icon: Clock, label: 'Çalışma Saatleri', value: 'Hf içi 08:00-22:00', href: '#', sub: 'Hf sonu 09:00-18:00' },
   ]

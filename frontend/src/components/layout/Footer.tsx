@@ -85,7 +85,7 @@ export function Footer() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <a href="tel:+902121234567" style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>📞 0212 123 45 67</a>
-              <a href="mailto:destek@primekurye.com" style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>✉️ destek@primekurye.com</a>
+              <a href="mailto:destek@vinkurye.com" style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>✉️ destek@vinkurye.com</a>
               <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.45)' }}>📍 İstanbul, Türkiye</span>
             </div>
           </div>

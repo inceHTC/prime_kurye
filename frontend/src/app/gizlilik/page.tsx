@@ -50,7 +50,7 @@ export default function GizlilikPage() {
 
           <Section title="1. Veri Sorumlusu">
             <p>Kişisel verileriniz, <strong>Vın Kurye</strong> tarafından veri sorumlusu sıfatıyla işlenmektedir.</p>
-            <p style={{ marginTop: 8 }}>İletişim: destek@primekurye.com | +90 212 123 45 67</p>
+            <p style={{ marginTop: 8 }}>İletişim: destek@vinkurye.com | +90 212 123 45 67</p>
           </Section>
 
           <Section title="2. Toplanan Kişisel Veriler">

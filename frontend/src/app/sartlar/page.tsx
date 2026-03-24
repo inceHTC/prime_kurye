@@ -132,7 +132,7 @@ export default function SartlarPage() {
           <Section title="11. İletişim">
             <p>Kullanım şartları hakkında sorularınız için:</p>
             <ul style={{ paddingLeft: 20, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <li>E-posta: destek@primekurye.com</li>
+              <li>E-posta: destek@vinkurye.com</li>
               <li>Telefon: +90 212 123 45 67</li>
             </ul>
           </Section>

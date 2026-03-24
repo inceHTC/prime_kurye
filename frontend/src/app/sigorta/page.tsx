@@ -64,7 +64,7 @@ export default function SigortaPage() {
           <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#1c0800', marginBottom: 14 }}>Hasar/Kayıp Bildirimi</h3>
           <ol style={{ paddingLeft: 20, fontSize: '0.875rem', color: '#4a3020', display: 'flex', flexDirection: 'column', gap: 8, lineHeight: 1.7 }}>
             <li>Teslimat tamamlandıktan sonra <strong>24 saat içinde</strong> bildirim yapılmalıdır.</li>
-            <li>destek@primekurye.com adresine sipariş numarası ve hasar fotoğraflarını gönderin.</li>
+            <li>destek@vinkurye.com adresine sipariş numarası ve hasar fotoğraflarını gönderin.</li>
             <li>Ekibimiz 2 iş günü içinde size dönüş yapar.</li>
             <li>Onaylanan talepler için 5-10 iş günü içinde iade yapılır.</li>
           </ol>

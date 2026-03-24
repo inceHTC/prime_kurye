@@ -145,7 +145,7 @@ const categories = [
       },
       {
         q: 'Kurumsal fiyatlandırma var mı?',
-        a: 'Yüksek hacimli işletmeler için özel fiyatlandırma sunuyoruz. Detaylar için destek@primekurye.com adresine yazın.',
+        a: 'Yüksek hacimli işletmeler için özel fiyatlandırma sunuyoruz. Detaylar için destek@vinkurye.com adresine yazın.',
       },
     ],
   },
@@ -277,7 +277,7 @@ export default function SSSPage() {
             Destek ekibimiz size yardımcı olmaktan mutluluk duyar
           </p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="mailto:destek@primekurye.com" style={{
+            <a href="mailto:destek@vinkurye.com" style={{
               padding: '11px 22px', background: '#c8860a', color: '#1c0800',
               borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
             }}>
