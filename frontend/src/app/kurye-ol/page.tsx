@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import {
   Zap, ArrowLeft, Bike, Shield, Clock, TrendingUp,
   CheckCircle, Loader2, User, Phone, Mail, Lock,
-  CreditCard, ChevronRight
+  CreditCard, ChevronRight, Eye, EyeOff
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '@/lib/api'
@@ -42,6 +42,7 @@ export default function KuryeOlPage() {
     agreeTerms: false,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [showPassword, setShowPassword] = useState(false)
 
   const validate = () => {
     const newErrors: Record<string, string> = {}
@@ -305,13 +306,20 @@ export default function KuryeOlPage() {
               <div style={{ position: 'relative' }}>
                 <Lock size={16} color="#a89080" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                   placeholder="En az 8 karakter"
                   className="input"
-                  style={{ paddingLeft: 38 }}
+                  style={{ paddingLeft: 38, paddingRight: 40 }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#a89080', padding: 0, display: 'flex' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
               {errors.password && <p style={{ fontSize: '0.75rem', color: '#dc2626', marginTop: 4 }}>{errors.password}</p>}
             </div>
@@ -322,13 +330,20 @@ export default function KuryeOlPage() {
               <div style={{ position: 'relative' }}>
                 <Lock size={16} color="#a89080" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={form.confirmPassword}
                   onChange={e => setForm(f => ({ ...f, confirmPassword: e.target.value }))}
                   placeholder="Şifrenizi tekrar girin"
                   className="input"
-                  style={{ paddingLeft: 38 }}
+                  style={{ paddingLeft: 38, paddingRight: 40 }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#a89080', padding: 0, display: 'flex' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
               {errors.confirmPassword && <p style={{ fontSize: '0.75rem', color: '#dc2626', marginTop: 4 }}>{errors.confirmPassword}</p>}
             </div>
