@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Zap, LogOut, MapPin, Phone, Package,
   CheckCircle, XCircle, Clock, Navigation,
   TrendingUp, Star, Wifi, WifiOff, RefreshCw,
-  LayoutDashboard, Wallet,
+  LayoutDashboard, Wallet, Camera,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
@@ -19,7 +20,7 @@ type OrderTab = 'PENDING' | 'ACTIVE' | 'DONE'
 
 export default function KuryePanelPage() {
   const router = useRouter()
-  const { user, clearAuth, accessToken } = useAuthStore()
+  const { user, clearAuth, accessToken, refreshToken, setAuth } = useAuthStore()
   const [orders, setOrders] = useState<any[]>([])
   const [isOnline, setIsOnline] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -30,6 +31,9 @@ export default function KuryePanelPage() {
     rating: 0,
     totalDeliveries: 0,
   })
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar || null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!accessToken) { router.push('/giris'); return }
@@ -109,6 +113,33 @@ export default function KuryePanelPage() {
     }
   }
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingAvatar(true)
+    try {
+      const formData = new FormData()
+      formData.append('avatar', file)
+      const res = await api.post('/users/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      if (res.data.success) {
+        const url = res.data.data.avatarUrl
+        setAvatarUrl(url)
+        // Store'daki user'ı güncelle
+        if (user && accessToken && refreshToken) {
+          setAuth({ ...user, avatar: url }, accessToken, refreshToken)
+        }
+        toast.success('Profil fotoğrafı güncellendi')
+      }
+    } catch {
+      toast.error('Fotoğraf yüklenemedi')
+    } finally {
+      setUploadingAvatar(false)
+      if (avatarInputRef.current) avatarInputRef.current.value = ''
+    }
+  }
+
   const handleLogout = () => {
     clearAuth()
     router.push('/')
@@ -150,13 +181,31 @@ export default function KuryePanelPage() {
               Kazançlarım
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 5px', borderRadius: 30, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #16a34a, #22c55e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.68rem', fontWeight: 800, color: '#fff' }}>
-                {initials}
-              </div>
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                title="Profil fotoğrafını değiştir"
+                style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, position: 'relative' }}
+              >
+                {avatarUrl ? (
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'}${avatarUrl}`}
+                    alt="Avatar"
+                    width={28}
+                    height={28}
+                    style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #16a34a, #22c55e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.68rem', fontWeight: 800, color: '#fff' }}>
+                    {uploadingAvatar ? '...' : initials}
+                  </div>
+                )}
+              </button>
               <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>
                 {user.fullName.split(' ')[0]}
               </span>
             </div>
+            <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleAvatarChange} />
             <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', color: 'rgba(255,255,255,0.45)', padding: '8px', display: 'flex', borderRadius: 8 }}>
               <LogOut size={15} />
             </button>
@@ -181,11 +230,29 @@ export default function KuryePanelPage() {
             </>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, position: 'relative' }}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, background: isOnline ? 'rgba(200,134,10,0.15)' : '#f0ede8', display: 'flex', alignItems: 'center', justifyContent: 'center', border: isOnline ? '1px solid rgba(200,134,10,0.25)' : '1px solid rgba(28,8,0,0.08)' }}>
-              {isOnline
-                ? <Wifi size={24} color="#c8860a" />
-                : <WifiOff size={24} color="#a89080" />
-              }
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                style={{ width: 58, height: 58, borderRadius: 14, overflow: 'hidden', border: isOnline ? '2px solid rgba(200,134,10,0.4)' : '2px solid rgba(28,8,0,0.12)', cursor: 'pointer', padding: 0, background: 'none', display: 'block' }}
+              >
+                {avatarUrl ? (
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'}${avatarUrl}`}
+                    alt="Profil"
+                    width={58}
+                    height={58}
+                    style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: isOnline ? 'rgba(200,134,10,0.15)' : '#f0ede8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: isOnline ? '#c8860a' : '#a89080' }}>
+                    {initials}
+                  </div>
+                )}
+              </button>
+              <div style={{ position: 'absolute', bottom: -4, right: -4, width: 20, height: 20, borderRadius: '50%', background: '#1c0800', border: '2px solid', borderColor: isOnline ? '#3d1a00' : '#f0ede8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Camera size={10} color={isOnline ? '#c8860a' : '#a89080'} />
+              </div>
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
