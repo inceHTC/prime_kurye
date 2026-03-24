@@ -310,6 +310,11 @@ model SystemSettings {
   weekendStart         String   @default("09:00")
   weekendEnd           String   @default("18:00")
 
+  // Ek ücretler
+  fragileFee           Float    @default(30.0)    // Kırılabilir paket ek ücreti
+  weightFeeLight       Float    @default(30.0)    // 5-15 kg arası ek ücret
+  weightFeeHeavy       Float    @default(60.0)    // 15 kg üstü ek ücret
+
   // Sigorta
   maxInsuranceAmount   Float    @default(30000.0)
 

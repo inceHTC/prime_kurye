@@ -56,23 +56,49 @@ function calculatePrice(
   isFragile = false,
   packageWeight = 1,
   _packageValue = 0,
-  senderLat?: number, senderLng?: number,
-  recipientLat?: number, recipientLng?: number,
-): number {
-  const BASE    = 65
-  const kmCost  = tieredKmCost(roadKm)
-  const fragile = isFragile ? 30 : 0
-  const weight  = packageWeight > 15 ? 60 : packageWeight > 5 ? 30 : 0
-  const subtotal = BASE + kmCost + fragile + weight
-
-  const config: Record<string, { multiplier: number; min: number }> = {
+  fees = { fragileFee: 30, weightFeeLight: 30, weightFeeHeavy: 60 },
+  config = {
     EXPRESS:   { multiplier: 1.40, min: 110 },
     SAME_DAY:  { multiplier: 1.00, min:  80 },
     SCHEDULED: { multiplier: 0.85, min:  68 },
-  }
-  const { multiplier, min } = config[deliveryType] ?? config.EXPRESS
+  },
+): number {
+  const BASE    = 65
+  const kmCost  = tieredKmCost(roadKm)
+  const fragile = isFragile ? fees.fragileFee : 0
+  const weight  = packageWeight > 15 ? fees.weightFeeHeavy : packageWeight > 5 ? fees.weightFeeLight : 0
+  const subtotal = BASE + kmCost + fragile + weight
+
+  const { multiplier, min } = config[deliveryType as keyof typeof config] ?? config.EXPRESS
 
   return Math.max(min, Math.round(subtotal * multiplier))
+}
+
+async function getSettingsFees() {
+  try {
+    const s = await prisma.systemSettings.findFirst()
+    return {
+      fees: {
+        fragileFee: s?.fragileFee ?? 30,
+        weightFeeLight: s?.weightFeeLight ?? 30,
+        weightFeeHeavy: s?.weightFeeHeavy ?? 60,
+      },
+      config: {
+        EXPRESS:   { multiplier: s?.pricePerKmMoto ?? 1.40, min: s?.basePriceExpress ?? 110 },
+        SAME_DAY:  { multiplier: s?.pricePerKmCar  ?? 1.00, min: s?.basePriceSameDay  ??  80 },
+        SCHEDULED: { multiplier: s?.pricePerKmBike ?? 0.85, min: s?.basePriceScheduled ??  68 },
+      },
+    }
+  } catch {
+    return {
+      fees: { fragileFee: 30, weightFeeLight: 30, weightFeeHeavy: 60 },
+      config: {
+        EXPRESS:   { multiplier: 1.40, min: 110 },
+        SAME_DAY:  { multiplier: 1.00, min:  80 },
+        SCHEDULED: { multiplier: 0.85, min:  68 },
+      },
+    }
+  }
 }
 
 export async function estimatePrice(req: Request, res: Response) {
@@ -80,7 +106,8 @@ export async function estimatePrice(req: Request, res: Response) {
     const { senderLat, senderLng, recipientLat, recipientLng, deliveryType, isFragile, packageWeight } = req.body
     const crossSide = isAsianSide(Number(senderLat), Number(senderLng)) !== isAsianSide(Number(recipientLat), Number(recipientLng))
     const distance  = calculateDistance(Number(senderLat), Number(senderLng), Number(recipientLat), Number(recipientLng))
-    const price     = calculatePrice(distance, deliveryType || 'EXPRESS', isFragile, Number(packageWeight) || 1)
+    const { fees, config } = await getSettingsFees()
+    const price     = calculatePrice(distance, deliveryType || 'EXPRESS', isFragile, Number(packageWeight) || 1, 0, fees, config)
     const bridgeExtra = crossSide ? 20 : 0
     const speedFactor = deliveryType === 'EXPRESS' ? 3.0 : 3.8
     const estimatedMinutes = Math.max(20, Math.round(distance * speedFactor) + bridgeExtra)
@@ -142,7 +169,8 @@ export async function createOrder(req: Request, res: Response) {
     } = req.body
 
     const distance = calculateDistance(Number(senderLat), Number(senderLng), Number(recipientLat), Number(recipientLng))
-    const price = calculatePrice(distance, deliveryType, isFragile, Number(packageWeight) || 1)
+    const { fees, config } = await getSettingsFees()
+    const price = calculatePrice(distance, deliveryType, isFragile, Number(packageWeight) || 1, 0, fees, config)
     const trackingCode = generateTrackingCode()
 
     const order = await prisma.order.create({
