@@ -30,6 +30,7 @@ export default function OrderCalculator() {
     dropoffDistrict: '',
     serviceType: 'EXPRESS' as DeliveryType,
     isFragile: false,
+    packageWeight: 1,
     packageValue: '',
   })
 
@@ -43,6 +44,7 @@ export default function OrderCalculator() {
       dropoffDistrict: formData.dropoffDistrict,
       deliveryType: formData.serviceType,
       isFragile: formData.isFragile,
+      packageWeight: formData.packageWeight,
     })
   }, [formData])
 
@@ -54,6 +56,7 @@ export default function OrderCalculator() {
       dropoffDistrict: formData.dropoffDistrict,
       deliveryType: formData.serviceType,
       isFragile: String(formData.isFragile),
+      packageWeight: String(formData.packageWeight),
       packageValue: formData.packageValue || '0',
     })
 
@@ -132,14 +135,17 @@ export default function OrderCalculator() {
           </div>
 
           <div className="calculator-inline-grid">
-            <label className="calculator-check">
-              <input
-                type="checkbox"
-                checked={formData.isFragile}
-                onChange={(event) => setFormData((current) => ({ ...current, isFragile: event.target.checked }))}
-              />
-              <span>Hassas / kırılabilir paket (+25 TL)</span>
-            </label>
+            <Field label="Paket Ağırlığı">
+              <select
+                className="input"
+                value={formData.packageWeight}
+                onChange={(event) => setFormData((current) => ({ ...current, packageWeight: Number(event.target.value) }))}
+              >
+                <option value={1}>0 – 5 kg (ücretsiz)</option>
+                <option value={6}>5 – 15 kg (+30 TL)</option>
+                <option value={16}>15 kg üstü (+60 TL)</option>
+              </select>
+            </Field>
 
             <Field label="Paket Değeri">
               <input
@@ -153,6 +159,15 @@ export default function OrderCalculator() {
               />
             </Field>
           </div>
+
+          <label className="calculator-check">
+            <input
+              type="checkbox"
+              checked={formData.isFragile}
+              onChange={(event) => setFormData((current) => ({ ...current, isFragile: event.target.checked }))}
+            />
+            <span>Hassas / kırılabilir paket (+30 TL)</span>
+          </label>
 
           <div className="calculator-note">
             Paket değeri yalnızca güvence kaydı için alınır, müşteri fiyatına eklenmez.
@@ -186,6 +201,15 @@ export default function OrderCalculator() {
                   label="Teslimat tipi"
                   value={services.find((service) => service.value === formData.serviceType)?.label ?? '-'}
                 />
+                {estimate.weightFee > 0 && (
+                  <SummaryRow label="Ağırlık ücreti" value={`+${estimate.weightFee} TL`} />
+                )}
+                {formData.isFragile && (
+                  <SummaryRow label="Kırılabilir ek ücret" value="+30 TL" />
+                )}
+                {estimate.crossSide && (
+                  <SummaryRow label="Karşı yaka" value="✓ uygulandı" />
+                )}
               </div>
 
               <div className="calculator-total-box">

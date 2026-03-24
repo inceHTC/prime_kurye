@@ -147,6 +147,9 @@ export function ServicesSection() {
                     <div style={{ fontFamily: "'Barlow', sans-serif", fontSize: '0.75rem', color: '#a89080', marginTop: 2 }}>
                       {s.priceNote}
                     </div>
+                    <div style={{ fontFamily: "'Barlow', sans-serif", fontSize: '0.68rem', color: '#b8a090', marginTop: 4, lineHeight: 1.4 }}>
+                      5-15 kg +30₺ · 15 kg+ +60₺
+                    </div>
                   </div>
                   <Link href="/siparis" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.82rem' }}>
                     Seç
