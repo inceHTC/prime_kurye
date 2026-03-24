@@ -199,7 +199,7 @@ export default function ProfilPage() {
               fontSize: '0.75rem', fontWeight: 700,
               background: 'rgba(200,134,10,0.15)', color: '#c8860a',
             }}>
-              {user.role === 'BUSINESS' ? 'İşletme' : user.role === 'COURIER' ? 'Kurye' : 'Admin'}
+              {user.role === 'BUSINESS' ? 'İşletme' : user.role === 'COURIER' ? 'Kurye' : user.role === 'ADMIN' ? 'Admin' : 'Bireysel'}
             </span>
           </div>
         </div>
