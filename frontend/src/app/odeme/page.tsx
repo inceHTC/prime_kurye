@@ -61,6 +61,35 @@ function PaymentContent() {
     }
   }
 
+  // checkoutForm DOM'a yazıldıktan sonra iyzico script'lerini çalıştır
+  useEffect(() => {
+    if (!checkoutForm) return
+
+    // checkoutFormContent içindeki inline script'leri çalıştır
+    const container = document.getElementById('iyzico-form-container')
+    if (container) {
+      container.querySelectorAll('script').forEach(oldScript => {
+        const newScript = document.createElement('script')
+        if (oldScript.src) {
+          newScript.src = oldScript.src
+        } else {
+          newScript.textContent = oldScript.textContent
+        }
+        document.head.appendChild(newScript)
+      })
+    }
+
+    // iyzico bundle'ı yükle (önceki varsa kaldır)
+    const existing = document.getElementById('iyzico-bundle')
+    if (existing) existing.remove()
+
+    const bundle = document.createElement('script')
+    bundle.id = 'iyzico-bundle'
+    bundle.src = `https://sandbox-static.iyzipay.com/checkoutform/v2/bundle.js?t=${Date.now()}`
+    bundle.async = true
+    document.head.appendChild(bundle)
+  }, [checkoutForm])
+
   const initializePayment = async () => {
     setIsInitializing(true)
 
@@ -69,11 +98,6 @@ function PaymentContent() {
 
       if (response.data.success) {
         setCheckoutForm(response.data.data.checkoutFormContent)
-        setTimeout(() => {
-          const script = document.createElement('script')
-          script.src = `https://sandbox-static.iyzipay.com/checkoutform/v2/bundle.js?random=${Date.now()}`
-          document.head.appendChild(script)
-        }, 100)
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Ödeme başlatılamadı')
@@ -177,6 +201,7 @@ function PaymentContent() {
           </div>
         ) : (
           <div
+            id="iyzico-form-container"
             dangerouslySetInnerHTML={{ __html: checkoutForm }}
             style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', overflow: 'hidden' }}
           />
