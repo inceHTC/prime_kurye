@@ -2,6 +2,11 @@ import { Request, Response } from 'express'
 import { validationResult } from 'express-validator'
 import { prisma } from '../lib/prisma'
 import { findNearestCouriers } from '../services/courierMatching.service'
+import { emitOrderUpdate, emitNewOrderToCourier } from '../lib/socket'
+import {
+  sendOrderCreatedEmail,
+  sendCancelledEmail,
+} from '../services/email.service'
 
 function generateTrackingCode(): string {
   const prefix = 'PK'
@@ -143,7 +148,21 @@ export async function createOrder(req: Request, res: Response) {
         where: { id: order.id },
         data: { pendingCourierIds: nearestCouriers.map((courier) => courier.courierId) },
       })
+      // Yakın kuryeler socket ile anlık bildirim al
+      nearestCouriers.forEach(c => emitNewOrderToCourier(c.courierId, order))
     }
+
+    // Müşteriye e-posta gönder
+    try {
+      await sendOrderCreatedEmail(user.email, {
+        fullName: user.fullName,
+        trackingCode,
+        recipientName,
+        recipientAddress,
+        price,
+        deliveryType: deliveryType || 'EXPRESS',
+      })
+    } catch (e) { console.error('Order email error:', e) }
 
     return res.status(201).json({ success: true, message: 'Sipariş oluşturuldu', data: order })
   } catch (error) {
@@ -252,6 +271,22 @@ export async function cancelOrder(req: Request, res: Response) {
   try {
     const { id } = req.params
     const { reason } = req.body
+    const userId = (req as any).user?.userId
+
+    const existing = await prisma.order.findUnique({
+      where: { id },
+      include: { business: { include: { user: true } } },
+    })
+
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Sipariş bulunamadı' })
+    }
+
+    // Kurye yoldayken iptal yasak
+    if (['PICKING_UP', 'IN_TRANSIT'].includes(existing.status)) {
+      return res.status(400).json({ success: false, message: 'Kurye yoldayken sipariş iptal edilemez' })
+    }
+
     const updated = await prisma.order.update({
       where: { id },
       data: {
@@ -259,6 +294,20 @@ export async function cancelOrder(req: Request, res: Response) {
         cancelReason: reason || 'Müşteri tarafından iptal edildi',
       },
     })
+
+    // Socket bildirimi
+    emitOrderUpdate(existing.trackingCode, { status: 'CANCELLED', trackingCode: existing.trackingCode })
+
+    // E-posta
+    try {
+      const ownerUser = existing.business?.user
+      if (ownerUser) {
+        await sendCancelledEmail(ownerUser.email, {
+          fullName: ownerUser.fullName,
+          trackingCode: existing.trackingCode,
+        })
+      }
+    } catch (e) { console.error('Cancel email error:', e) }
 
     return res.json({ success: true, message: 'Sipariş iptal edildi', data: updated })
   } catch {

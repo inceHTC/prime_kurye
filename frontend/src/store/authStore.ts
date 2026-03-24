@@ -9,6 +9,7 @@ interface User {
   role: 'INDIVIDUAL' | 'BUSINESS' | 'COURIER' | 'ADMIN'
   avatar?: string
   isVerified: boolean
+  courierId?: string | null
 }
 
 interface AuthState {

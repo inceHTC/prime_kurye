@@ -1,0 +1,38 @@
+{
+  "name": "VinKurye - Hızlı Kurye",
+  "short_name": "VinKurye",
+  "description": "Anında kurye hizmeti - Bireysel ve kurumsal teslimat çözümleri",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1c0800",
+  "theme_color": "#1c0800",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Sipariş Ver",
+      "url": "/siparis",
+      "description": "Hızlıca yeni kurye çağır"
+    },
+    {
+      "name": "Sipariş Takip",
+      "url": "/takip",
+      "description": "Mevcut siparişini takip et"
+    }
+  ]
+}

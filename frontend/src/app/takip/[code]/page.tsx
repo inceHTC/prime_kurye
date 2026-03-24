@@ -22,6 +22,7 @@ import toast from 'react-hot-toast'
 import api from '@/lib/api'
 import { orderService } from '@/lib/orderService'
 import { useAuthStore } from '@/store/authStore'
+import { getSocket, joinOrderRoom, leaveOrderRoom } from '@/lib/socket'
 import {
   ORDER_STATUS_LABELS,
   formatCurrency,
@@ -52,6 +53,7 @@ export default function TakipDetayPage() {
   const [isPaying, setIsPaying] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
   const [rating, setRating] = useState(5)
+  const [courierPos, setCourierPos] = useState<{ lat: number; lng: number } | null>(null)
 
   const rawCode = String(params.code || '')
   const normalizedCode = useMemo(() => normalizeTrackingCode(rawCode), [rawCode])
@@ -76,8 +78,25 @@ export default function TakipDetayPage() {
     }
 
     fetchOrder()
-    const interval = setInterval(fetchOrder, 15000)
-    return () => clearInterval(interval)
+    const interval = setInterval(fetchOrder, 30000) // fallback polling
+
+    // Socket.io: gerçek zamanlı güncellemeler
+    const socket = getSocket()
+    joinOrderRoom(normalizedCode)
+    socket.on('order:updated', (data: any) => {
+      setOrder((prev: any) => prev ? { ...prev, status: data.status } : prev)
+      toast.success(`Durum güncellendi: ${data.status}`, { icon: '📦' })
+    })
+    socket.on('courier:location', (pos: { lat: number; lng: number }) => {
+      setCourierPos(pos)
+    })
+
+    return () => {
+      clearInterval(interval)
+      leaveOrderRoom(normalizedCode)
+      socket.off('order:updated')
+      socket.off('courier:location')
+    }
   }, [rawCode, normalizedCode, isValidCode])
 
   const fetchOrder = async () => {
@@ -412,13 +431,21 @@ export default function TakipDetayPage() {
                 {isLoaded ? (
                   <GoogleMap
                     mapContainerStyle={{ width: '100%', height: '100%' }}
-                    center={order.courier?.currentLat ? { lat: order.courier.currentLat, lng: order.courier.currentLng } : { lat: 41.0082, lng: 28.9784 }}
-                    zoom={13}
+                    center={
+                      courierPos ??
+                      (order.courier?.currentLat ? { lat: order.courier.currentLat, lng: order.courier.currentLng } : { lat: 41.0082, lng: 28.9784 })
+                    }
+                    zoom={14}
                     options={{ disableDefaultUI: false, zoomControl: true, streetViewControl: false, mapTypeControl: false }}
                   >
-                    {order.courier?.currentLat && (
-                      <Marker position={{ lat: order.courier.currentLat, lng: order.courier.currentLng }} />
+                    {(courierPos || order.courier?.currentLat) && (
+                      <Marker
+                        position={courierPos ?? { lat: order.courier.currentLat, lng: order.courier.currentLng }}
+                        label={{ text: '🛵', fontSize: '20px' }}
+                      />
                     )}
+                    <Marker position={{ lat: parseFloat(order.senderLat), lng: parseFloat(order.senderLng) }} label={{ text: '📦', fontSize: '18px' }} />
+                    <Marker position={{ lat: parseFloat(order.recipientLat), lng: parseFloat(order.recipientLng) }} label={{ text: '📍', fontSize: '18px' }} />
                   </GoogleMap>
                 ) : (
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>

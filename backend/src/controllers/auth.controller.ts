@@ -64,7 +64,10 @@ export async function login(req: Request, res: Response) {
       return res.status(400).json({ success: false, errors: errors.array() })
     }
     const { email, password } = req.body
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { courier: { select: { id: true } } },
+    })
     if (!user) {
       return res.status(401).json({ success: false, message: 'E-posta veya şifre hatalı' })
     }
@@ -87,7 +90,11 @@ export async function login(req: Request, res: Response) {
       success: true,
       message: 'Giriş başarılı',
       data: {
-        user: { id: user.id, email: user.email, phone: user.phone, fullName: user.fullName, role: user.role },
+        user: {
+          id: user.id, email: user.email, phone: user.phone,
+          fullName: user.fullName, role: user.role,
+          courierId: user.courier?.id ?? null,
+        },
         accessToken,
         refreshToken,
       },

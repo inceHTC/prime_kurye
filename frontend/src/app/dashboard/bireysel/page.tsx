@@ -161,6 +161,10 @@ export default function BireyselDashboardPage() {
               <Plus size={15} color="#7a6050" />
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Kurye Çağır</span>
             </Link>
+            <Link href="/dashboard/adresler" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
+              <MapPin size={15} color="#7a6050" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Adres Defteri</span>
+            </Link>
             <Link href="/profil" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
               <User size={15} color="#7a6050" />
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Profilim</span>
@@ -193,10 +197,7 @@ export default function BireyselDashboardPage() {
                   : 'Gönderilerinizi buradan kolayca yönetin'}
               </p>
             </div>
-            <Link href="/siparis" className="banner-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 22px', background: '#c8860a', color: '#1c0800', borderRadius: 9, textDecoration: 'none', fontWeight: 800, fontSize: '0.875rem', position: 'relative', whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(200,134,10,0.35)' }}>
-              <Plus size={15} />
-              Kurye Çağır
-            </Link>
+           
           </div>
 
           {/* İstatistik Kartları */}

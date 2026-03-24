@@ -73,6 +73,7 @@ model User {
   courier       Courier?
   refreshTokens RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  savedAddresses SavedAddress[]
 
   @@map("users")
 }
@@ -303,6 +304,24 @@ model SystemSettings {
   @@map("system_settings")
 }
 
+
+// ================================
+// ADRES DEFTERİ
+// ================================
+model SavedAddress {
+  id        String   @id @default(cuid())
+  userId    String
+  label     String   // Ev, İş, Depo vb.
+  address   String
+  lat       Float?
+  lng       Float?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("saved_addresses")
+}
 
 model PasswordResetToken {
   id        String   @id @default(cuid())

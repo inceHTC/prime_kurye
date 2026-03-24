@@ -1,5 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
+import { emitOrderUpdate, emitCourierLocation } from '../lib/socket'
+import { sendCourierAssignedEmail, sendPickedUpEmail, sendDeliveredEmail } from '../services/email.service'
 
 // ================================
 // KURYE SİPARİŞLERİ
@@ -101,7 +103,7 @@ export async function updateCourierLocation(req: Request, res: Response) {
       return res.status(400).json({ success: false, message: 'Konum bilgisi gerekli' })
     }
 
-    await prisma.courier.update({
+    const courier = await prisma.courier.update({
       where: { userId },
       data: {
         currentLat: parseFloat(lat),
@@ -109,6 +111,15 @@ export async function updateCourierLocation(req: Request, res: Response) {
         locationUpdated: new Date(),
       },
     })
+
+    // Aktif siparişlerin takip sayfasına konum yayınla
+    const activeOrder = await prisma.order.findFirst({
+      where: { courierId: courier.id, status: { in: ['PICKING_UP', 'IN_TRANSIT'] } },
+      select: { trackingCode: true },
+    })
+    if (activeOrder) {
+      emitCourierLocation(activeOrder.trackingCode, parseFloat(lat), parseFloat(lng))
+    }
 
     return res.json({ success: true, message: 'Konum güncellendi' })
   } catch {
@@ -143,8 +154,30 @@ export async function acceptOrder(req: Request, res: Response) {
       data: {
         courierId: courier.id,
         status: 'PICKING_UP',
+        assignedAt: new Date(),
       },
+      include: { business: { include: { user: true } } },
     })
+
+    // Socket: müşteriye anlık bildir
+    emitOrderUpdate(updated.trackingCode, {
+      status: 'PICKING_UP',
+      trackingCode: updated.trackingCode,
+      courierName: (await prisma.user.findUnique({ where: { id: (req as any).user.userId }, select: { fullName: true } }))?.fullName,
+    })
+
+    // E-posta: müşteriye kurye atandı bildirimi
+    try {
+      const ownerUser = updated.business?.user
+      const courierUser = await prisma.user.findUnique({ where: { id: (req as any).user.userId }, select: { fullName: true } })
+      if (ownerUser && courierUser) {
+        await sendCourierAssignedEmail(ownerUser.email, {
+          fullName: ownerUser.fullName,
+          trackingCode: updated.trackingCode,
+          courierName: courierUser.fullName,
+        })
+      }
+    } catch (e) { console.error('Courier assigned email error:', e) }
 
     return res.json({ success: true, message: 'Sipariş kabul edildi', data: updated })
   } catch {
@@ -174,7 +207,6 @@ export async function updateOrderStatus(req: Request, res: Response) {
     const updateData: any = { status }
     if (status === 'DELIVERED') {
       updateData.deliveredAt = new Date()
-      // Kurye istatistiklerini güncelle
       await prisma.courier.update({
         where: { id: courier.id },
         data: { totalDeliveries: { increment: 1 } },
@@ -184,7 +216,33 @@ export async function updateOrderStatus(req: Request, res: Response) {
     const updated = await prisma.order.update({
       where: { id },
       data: updateData,
+      include: { business: { include: { user: true } } },
     })
+
+    // Socket: müşteriye anlık bildir
+    emitOrderUpdate(updated.trackingCode, { status, trackingCode: updated.trackingCode })
+
+    // E-posta bildirimleri
+    try {
+      const ownerUser = updated.business?.user
+      if (ownerUser) {
+        if (status === 'IN_TRANSIT') {
+          await sendPickedUpEmail(ownerUser.email, {
+            fullName: ownerUser.fullName,
+            trackingCode: updated.trackingCode,
+            recipientName: updated.recipientName,
+            recipientAddress: updated.recipientAddress,
+          })
+        } else if (status === 'DELIVERED') {
+          await sendDeliveredEmail(ownerUser.email, {
+            fullName: ownerUser.fullName,
+            trackingCode: updated.trackingCode,
+            recipientName: updated.recipientName,
+            price: updated.price,
+          })
+        }
+      }
+    } catch (e) { console.error('Status email error:', e) }
 
     return res.json({ success: true, message: 'Durum güncellendi', data: updated })
   } catch {

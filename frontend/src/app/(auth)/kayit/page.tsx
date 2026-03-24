@@ -88,7 +88,7 @@ function RegisterContent() {
     setIsLoading(true)
 
     try {
-      const response = await authService.register(data)
+      const response = await authService.register({ ...data, role: selectedRole })
 
       if (response.success) {
         setAuth(response.data.user, response.data.accessToken, response.data.refreshToken)
@@ -108,8 +108,10 @@ function RegisterContent() {
       const message = error.response?.data?.message
       if (message?.includes('E-posta')) toast.error('Bu e-posta adresi zaten kayıtlı')
       else if (message?.includes('Telefon')) toast.error('Bu telefon numarası zaten kayıtlı')
-      else if (message?.includes('gerekli')) toast.error(message)
-      else toast.error(message || 'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
+      else if (message) toast.error(message)
+      else toast.error('Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
+    } finally {
+      setIsLoading(false)
     }
   }
 

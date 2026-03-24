@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -13,6 +13,7 @@ import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatCurrency, formatTimeAgo, ORDER_STATUS_LABELS } from '@/lib/utils'
+import { getSocket, joinCourierRoom } from '@/lib/socket'
 
 type OrderTab = 'PENDING' | 'ACTIVE' | 'DONE'
 
@@ -35,6 +36,21 @@ export default function KuryePanelPage() {
     if (user?.role !== 'COURIER') { router.push('/dashboard'); return }
     fetchData()
   }, [accessToken])
+
+  // Socket.io: gerçek zamanlı yeni sipariş bildirimi
+  useEffect(() => {
+    if (!user?.courierId) return
+    const socket = getSocket()
+    joinCourierRoom(user.courierId)
+    socket.on('order:new', (order: any) => {
+      toast.success(`Yeni sipariş! #${order.trackingCode}`, { duration: 6000, icon: '🛵' })
+      setOrders(prev => {
+        if (prev.find(o => o.id === order.id)) return prev
+        return [order, ...prev]
+      })
+    })
+    return () => { socket.off('order:new') }
+  }, [user?.courierId])
 
   const fetchData = async () => {
     setIsLoading(true)

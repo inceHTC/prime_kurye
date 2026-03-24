@@ -37,20 +37,24 @@ export async function findNearestCouriers(
       userId: true,
       currentLat: true,
       currentLng: true,
+      rating: true,
+      _count: { select: { orders: { where: { status: { in: ['PICKING_UP', 'IN_TRANSIT'] } } } } },
     },
   })
 
-  const withDistance = couriers
-    .map(c => ({
-      courierId: c.id,
-      userId: c.userId,
-      distance: calculateDistance(senderLat, senderLng, c.currentLat!, c.currentLng!),
-    }))
+  const withScore = couriers
+    .map(c => {
+      const distance = calculateDistance(senderLat, senderLng, c.currentLat!, c.currentLng!)
+      const activeOrders = c._count.orders
+      // Score: lower is better. Penalize distance, low rating, and busy couriers.
+      const score = distance * 1.5 - (c.rating ?? 5) * 2 + activeOrders * 3
+      return { courierId: c.id, userId: c.userId, distance, score }
+    })
     .filter(c => c.distance <= 15)
-    .sort((a, b) => a.distance - b.distance)
+    .sort((a, b) => a.score - b.score)
     .slice(0, limit)
 
-  return withDistance
+  return withScore
 }
 
 // ================================

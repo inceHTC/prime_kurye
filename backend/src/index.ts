@@ -3,11 +3,13 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import express from 'express'
+import { createServer } from 'http'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import path from 'path'
+import { initSocket } from './lib/socket'
 
 //rotalar
 import courierRoutes from './routes/courier.routes'
@@ -20,6 +22,7 @@ import escrowRoutes from './routes/escrow.routes'
 import reportRoutes from './routes/report.routes'
 import courierDocRoutes from './routes/courierDoc.routes'
 import passwordResetRoutes from './routes/passwordReset.routes'
+import addressRoutes from './routes/address.routes'
 import { startCronJobs } from './services/cron.service'
 
 
@@ -28,6 +31,7 @@ import { startCronJobs } from './services/cron.service'
 
 
 const app = express()
+const httpServer = createServer(app)
 const PORT = process.env.PORT || 4000
 const allowedOrigins = new Set(
   [
@@ -79,6 +83,7 @@ app.use('/api/payments', paymentRoutes)
 app.use('/api/escrow', escrowRoutes)
 app.use('/api/reports', reportRoutes)
 app.use('/api/courier-docs', courierDocRoutes)
+app.use('/api/addresses', addressRoutes)
 
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
@@ -92,7 +97,9 @@ app.use((_, res) => {
   res.status(404).json({ success: false, message: 'Endpoint bulunamadi' })
 })
 
-app.listen(PORT, () => {
+initSocket(httpServer)
+
+httpServer.listen(PORT, () => {
   startCronJobs()
   console.log(`
   Vın Kurye API
@@ -101,6 +108,7 @@ app.listen(PORT, () => {
   Ortam   : ${process.env.NODE_ENV || 'development'}
   URL     : http://localhost:${PORT}
   Health  : http://localhost:${PORT}/health
+  Socket  : aktif
   `)
 })
 
