@@ -64,14 +64,7 @@ export function ServicesSection() {
               İhtiyacınıza Uygun<br />Teslimat Seçeneği
             </h2>
           </div>
-          <Link href="/siparis" style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            fontFamily: "'Barlow', sans-serif", fontWeight: 600,
-            fontSize: '0.9rem', color: '#c8860a', textDecoration: 'none',
-            borderBottom: '2px solid #c8860a', paddingBottom: 2,
-          }}>
-            Tüm hizmetleri gör <ArrowRight size={16} />
-          </Link>
+      
         </div>
 
         {/* Servis kartları */}
