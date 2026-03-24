@@ -19,7 +19,8 @@ export async function getStats(req: Request, res: Response) {
     const [
       totalOrders, activeOrders, deliveredOrders, cancelledOrders,
       totalUsers, totalCouriers, activeCouriers, totalBusinesses,
-      todayOrders, weekOrders,
+      todayCount, weekCount,
+      todayRevenue, weekRevenue,
       totalRevenue,
       pendingPayouts,
     ] = await Promise.all([
@@ -31,26 +32,26 @@ export async function getStats(req: Request, res: Response) {
       prisma.courier.count(),
       prisma.courier.count({ where: { isOnline: true, isApproved: true } }),
       prisma.user.count({ where: { role: 'BUSINESS' } }),
-      prisma.order.findMany({ where: { createdAt: { gte: today } } }),
-      prisma.order.findMany({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.order.count({ where: { createdAt: { gte: today } } }),
+      prisma.order.count({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.order.aggregate({ where: { createdAt: { gte: today } }, _sum: { price: true } }),
+      prisma.order.aggregate({ where: { createdAt: { gte: weekAgo } }, _sum: { price: true } }),
       prisma.order.aggregate({ where: { status: 'DELIVERED' }, _sum: { price: true } }),
       prisma.payout.aggregate({ where: { status: 'PENDING' }, _sum: { netAmount: true } }),
     ])
 
-    const todayRevenue = todayOrders.reduce((s, o) => s + o.price, 0)
-    const weekRevenue = weekOrders.reduce((s, o) => s + o.price, 0)
-
     return res.json({
       success: true,
       data: {
-        orders: { total: totalOrders, active: activeOrders, delivered: deliveredOrders, cancelled: cancelledOrders, today: todayOrders.length, week: weekOrders.length },
+        orders: { total: totalOrders, active: activeOrders, delivered: deliveredOrders, cancelled: cancelledOrders, today: todayCount, week: weekCount },
         users: { total: totalUsers, businesses: totalBusinesses, couriers: totalCouriers, activeCouriers },
         finance: {
           escrowHeld: 0,
           totalRevenue: totalRevenue._sum.price || 0,
           totalCommission: 0,
           pendingPayouts: pendingPayouts._sum.netAmount || 0,
-          todayRevenue, weekRevenue,
+          todayRevenue: todayRevenue._sum.price || 0,
+          weekRevenue: weekRevenue._sum.price || 0,
         },
       },
     })
