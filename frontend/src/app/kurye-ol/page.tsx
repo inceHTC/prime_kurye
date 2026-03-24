@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 
 const benefits = [
   { icon: TrendingUp, title: 'Yüksek Kazanç', desc: 'Her teslimat başına %80 pay alırsın. Haftalık ödeme garantisi.' },
@@ -26,6 +27,7 @@ const steps = [
 
 export default function KuryeOlPage() {
   const router = useRouter()
+  const { setAuth } = useAuthStore()
   const [step, setStep] = useState<'info' | 'form' | 'success'>('info')
   const [isLoading, setIsLoading] = useState(false)
   const [form, setForm] = useState({
@@ -66,6 +68,8 @@ export default function KuryeOlPage() {
         plateNumber: form.plateNumber,
       })
       if (res.data.success) {
+        const { user, accessToken, refreshToken } = res.data.data
+        setAuth(user, accessToken, refreshToken)
         router.push('/kurye-belgeler')
       }
     } catch (err: any) {
