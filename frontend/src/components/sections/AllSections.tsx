@@ -395,8 +395,8 @@ export function TestimonialsSection() {
       avatar: '/images/2.png',
     },
     {
-      quote: 'Altın ve değerli taş ürünlerin siparişlerinde teslimat çok riskli. Ekspres seçeneğiyle müşterilerim en güvenilir şekilde ürünleri teslim alıyor.',
-      name: 'Yavuz D.', role: 'Kuyumcu İşletmecisi', city: 'Kadıköy',
+      quote: 'Ürünlerimizi sağlam ve hızlı teslim eden Vın Kurye çalışanlarına teşekkür ederim, müşterilerimizin memnuniyeti bize kazanç olarak geri dönüyor. ',
+      name: 'Yavuz D.', role: 'Firma Sahibi', city: 'Kadıköy',
       avatar: '/images/3.png',
     },
   ]
