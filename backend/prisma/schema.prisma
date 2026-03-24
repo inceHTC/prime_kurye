@@ -266,13 +266,13 @@ model RefreshToken {
 model SystemSettings {
   id                   String   @id @default(cuid())
 
-  // Fiyatlandırma
-  basePriceExpress     Float    @default(136.90)
-  basePriceSameDay     Float    @default(94.90)
-  basePriceScheduled   Float    @default(110.90)
-  pricePerKmMoto       Float    @default(4.90)
-  pricePerKmCar        Float    @default(7.90)
-  pricePerKmBike       Float    @default(3.50)
+  // Fiyatlandırma (baz=65₺, km kademeli 9→7→5₺)
+  basePriceExpress     Float    @default(110.00)  // Ekspres min fiyat
+  basePriceSameDay     Float    @default(80.00)   // Aynı Gün min fiyat
+  basePriceScheduled   Float    @default(68.00)   // Planlanmış min fiyat
+  pricePerKmMoto       Float    @default(1.40)    // Ekspres katsayısı
+  pricePerKmCar        Float    @default(1.00)    // Aynı Gün katsayısı
+  pricePerKmBike       Float    @default(0.85)    // Planlanmış katsayısı
 
   // Komisyon
   commissionRate       Float    @default(0.20)
