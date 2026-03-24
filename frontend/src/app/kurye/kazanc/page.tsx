@@ -11,15 +11,16 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 
 export default function KuryeKazancPage() {
   const router = useRouter()
-  const { user, accessToken } = useAuthStore()
+  const { user, accessToken, _hasHydrated } = useAuthStore()
   const [data, setData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     if (user?.role !== 'COURIER') { router.push('/dashboard'); return }
     fetchEarnings()
-  }, [accessToken])
+  }, [_hasHydrated, accessToken])
 
   const fetchEarnings = async () => {
     try {

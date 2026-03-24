@@ -34,7 +34,7 @@ function getStatusStyle(status: string) {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, clearAuth, accessToken } = useAuthStore()
+  const { user, clearAuth, accessToken, _hasHydrated } = useAuthStore()
   const [orders, setOrders] = useState<any[]>([])
   const [stats, setStats] = useState({ total: 0, active: 0, delivered: 0, totalSpent: 0 })
   const [isLoading, setIsLoading] = useState(true)
@@ -42,12 +42,13 @@ export default function DashboardPage() {
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     if (user?.role === 'INDIVIDUAL') { router.push('/dashboard/bireysel'); return }
     if (user?.role === 'COURIER') { router.push('/kurye'); return }
     if (user?.role === 'ADMIN') { router.push('/admin'); return }
     fetchOrders()
-  }, [accessToken])
+  }, [_hasHydrated, accessToken])
 
   const fetchOrders = async () => {
     setIsLoading(true)
@@ -96,7 +97,7 @@ export default function DashboardPage() {
   const companyName = (user as any)?.business?.companyName || user?.fullName || ''
   const initials = companyName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || 'K'
 
-  if (!user) return null
+  if (!_hasHydrated || !user) return null
 
   return (
     <div style={{ minHeight: '100vh', background: '#f0ede8', fontFamily: "'Barlow', sans-serif" }}>

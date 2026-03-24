@@ -19,7 +19,7 @@ type SavedAddress = {
 
 export default function AdresDefteri() {
   const router = useRouter()
-  const { accessToken } = useAuthStore()
+  const { accessToken, _hasHydrated } = useAuthStore()
   const [addresses, setAddresses] = useState<SavedAddress[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -27,9 +27,10 @@ export default function AdresDefteri() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     fetchAddresses()
-  }, [accessToken])
+  }, [_hasHydrated, accessToken])
 
   const fetchAddresses = async () => {
     try {

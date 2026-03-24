@@ -37,12 +37,13 @@ const DELIVERY_TYPE_LABELS: Record<string, string> = {
 
 export default function RaporlarPage() {
   const router = useRouter()
-  const { user, accessToken } = useAuthStore()
+  const { user, accessToken, _hasHydrated } = useAuthStore()
   const [data, setData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [period, setPeriod] = useState('30')
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     fetchReport()
   }, [accessToken, period])

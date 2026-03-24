@@ -14,12 +14,13 @@ function EscrowOdemeContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get('orderId')
-  const { accessToken } = useAuthStore()
+  const { accessToken, _hasHydrated } = useAuthStore()
   const [order, setOrder] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isPaying, setIsPaying] = useState(false)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     if (!orderId) { router.push('/dashboard'); return }
     fetchOrder()

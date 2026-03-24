@@ -44,7 +44,7 @@ const DOCS = [
 
 export default function KuryeBelgelerPage() {
   const router = useRouter()
-  const { user, accessToken } = useAuthStore()
+  const { user, accessToken, _hasHydrated } = useAuthStore()
   const [files, setFiles] = useState<Record<string, File | null>>({
     identityDoc: null,
     licenseDoc: null,
@@ -57,10 +57,11 @@ export default function KuryeBelgelerPage() {
   const [step, setStep] = useState<'docs' | 'contract' | 'done'>('docs')
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     if (user?.role !== 'COURIER') { router.push('/'); return }
     fetchDocStatus()
-  }, [accessToken])
+  }, [_hasHydrated, accessToken])
 
   const fetchDocStatus = async () => {
     try {

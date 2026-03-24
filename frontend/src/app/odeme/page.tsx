@@ -13,7 +13,7 @@ function PaymentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
-  const { accessToken } = useAuthStore()
+  const { accessToken, _hasHydrated } = useAuthStore()
 
   const [order, setOrder] = useState<any>(null)
   const [checkoutForm, setCheckoutForm] = useState('')
@@ -21,6 +21,7 @@ function PaymentContent() {
   const [isInitializing, setIsInitializing] = useState(false)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) {
       router.push('/giris')
       return
@@ -32,7 +33,7 @@ function PaymentContent() {
     }
 
     fetchOrder()
-  }, [accessToken, orderId])
+  }, [_hasHydrated, accessToken, orderId])
 
   useEffect(() => {
     if (order && !order.isPaid && !checkoutForm && !isInitializing) {

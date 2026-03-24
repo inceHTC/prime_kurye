@@ -32,7 +32,7 @@ function getStatusStyle(status: string) {
 
 export default function BireyselDashboardPage() {
   const router = useRouter()
-  const { user, clearAuth, accessToken } = useAuthStore()
+  const { user, clearAuth, accessToken, _hasHydrated } = useAuthStore()
   const [orders, setOrders] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null)
@@ -40,6 +40,7 @@ export default function BireyselDashboardPage() {
   const [stats, setStats] = useState({ total: 0, active: 0, delivered: 0, totalSpent: 0 })
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     if (user?.role !== 'INDIVIDUAL') {
       if (user?.role === 'BUSINESS') router.push('/dashboard')
@@ -48,7 +49,7 @@ export default function BireyselDashboardPage() {
       return
     }
     fetchOrders()
-  }, [accessToken])
+  }, [_hasHydrated, accessToken])
 
   const fetchOrders = async () => {
     setIsLoading(true)
@@ -96,7 +97,7 @@ export default function BireyselDashboardPage() {
   const cancelledCount = orders.filter(o => ['CANCELLED', 'FAILED'].includes(o.status)).length
   const initials = user?.fullName?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || 'U'
 
-  if (!user) return null
+  if (!_hasHydrated || !user) return null
 
   return (
     <div style={{ minHeight: '100vh', background: '#f0ede8', fontFamily: "'Barlow', sans-serif" }}>

@@ -17,10 +17,12 @@ interface AuthState {
   accessToken: string | null
   refreshToken: string | null
   isLoading: boolean
+  _hasHydrated: boolean
   setAuth: (user: User, accessToken: string, refreshToken: string) => void
   setTokens: (accessToken: string, refreshToken: string) => void
   clearAuth: () => void
   setLoading: (loading: boolean) => void
+  setHasHydrated: (value: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -30,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isLoading: false,
+      _hasHydrated: false,
       setAuth: (user, accessToken, refreshToken) =>
         set({ user, accessToken, refreshToken }),
       setTokens: (accessToken, refreshToken) =>
@@ -37,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
       clearAuth: () =>
         set({ user: null, accessToken: null, refreshToken: null }),
       setLoading: (isLoading) => set({ isLoading }),
+      setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),
     {
       name: 'prime-kurye-auth',
@@ -45,6 +49,9 @@ export const useAuthStore = create<AuthState>()(
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
     }
   )
 )

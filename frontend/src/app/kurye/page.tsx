@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 import Image from 'next/image'
 import {
   Zap, LogOut, MapPin, Phone, Package,
@@ -21,6 +22,7 @@ type OrderTab = 'PENDING' | 'ACTIVE' | 'DONE'
 export default function KuryePanelPage() {
   const router = useRouter()
   const { user, clearAuth, accessToken, refreshToken, setAuth } = useAuthStore()
+  const { isReady } = useRequireAuth({ roleRequired: 'COURIER', roleRedirect: '/dashboard' })
   const [orders, setOrders] = useState<any[]>([])
   const [isOnline, setIsOnline] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -36,10 +38,8 @@ export default function KuryePanelPage() {
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!accessToken) { router.push('/giris'); return }
-    if (user?.role !== 'COURIER') { router.push('/dashboard'); return }
-    fetchData()
-  }, [accessToken])
+    if (isReady) fetchData()
+  }, [isReady])
 
   // Socket.io: gerçek zamanlı yeni sipariş bildirimi
   useEffect(() => {
@@ -153,7 +153,7 @@ export default function KuryePanelPage() {
 
   const initials = user?.fullName?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || 'K'
 
-  if (!user) return null
+  if (!isReady || !user) return null
 
   return (
     <div style={{ minHeight: '100vh', background: '#f0ede8', fontFamily: "'Barlow', sans-serif" }}>

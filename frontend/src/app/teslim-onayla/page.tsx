@@ -13,7 +13,7 @@ function TeslimOnayContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get('orderId')
-  const { accessToken } = useAuthStore()
+  const { accessToken, _hasHydrated } = useAuthStore()
   const [order, setOrder] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isConfirming, setIsConfirming] = useState(false)
@@ -21,6 +21,7 @@ function TeslimOnayContent() {
   const [rating, setRating] = useState(5)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     if (!orderId) { router.push('/dashboard'); return }
     fetchOrder()

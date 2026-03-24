@@ -36,7 +36,7 @@ type PasswordForm = z.infer<typeof passwordSchema>
 
 export default function ProfilPage() {
   const router = useRouter()
-  const { user, accessToken, setAuth, clearAuth, refreshToken } = useAuthStore()
+  const { user, accessToken, setAuth, clearAuth, refreshToken, _hasHydrated } = useAuthStore()
   const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile')
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
   const [isLoadingPassword, setIsLoadingPassword] = useState(false)
@@ -56,9 +56,10 @@ export default function ProfilPage() {
   })
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!accessToken) { router.push('/giris'); return }
     fetchProfile()
-  }, [accessToken])
+  }, [_hasHydrated, accessToken])
 
   const fetchProfile = async () => {
     try {
@@ -119,7 +120,7 @@ export default function ProfilPage() {
     router.push('/')
   }
 
-  if (!user) return null
+  if (!_hasHydrated || !user) return null
 
   const tabs = [
     { id: 'profile', label: 'Profil Bilgileri', icon: User },
