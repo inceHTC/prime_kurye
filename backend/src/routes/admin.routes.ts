@@ -5,6 +5,7 @@ import {
   getAllCouriers, getCourierDetail, approveCourier, updateCourierIban,
   getEscrowStatus, getPayouts, calculateWeeklyPayouts, completePayout,
   getSettings, updateSettings, getAllBusinesses,
+  getTransactions, exportTransactionsCsv,
 } from '../controllers/admin.controller'
 import { authenticate, authorize } from '../middleware/auth'
 
@@ -44,5 +45,9 @@ router.patch('/payouts/:payoutId/complete', completePayout)
 // Sistem ayarları
 router.get('/settings', getSettings)
 router.patch('/settings', updateSettings)
+
+// Muhasebe / İşlem kayıtları
+router.get('/transactions', getTransactions)
+router.get('/transactions/export', exportTransactionsCsv)
 
 export default router

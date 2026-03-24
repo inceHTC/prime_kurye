@@ -140,6 +140,7 @@ model Courier {
   user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders               Order[]
   payouts              Payout[]
+  transactions         Transaction[]
 
   @@map("couriers")
 }
@@ -213,6 +214,7 @@ model Order {
   courierId        String?
   business         Business     @relation(fields: [businessId], references: [id])
   courier          Courier?     @relation(fields: [courierId], references: [id])
+  transaction      Transaction?
 
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -304,6 +306,38 @@ model SystemSettings {
   @@map("system_settings")
 }
 
+
+// ================================
+// FİNANSAL İŞLEM KAYDI
+// ================================
+model Transaction {
+  id              String            @id @default(cuid())
+
+  orderId         String            @unique
+  order           Order             @relation(fields: [orderId], references: [id])
+
+  courierId       String?
+  courier         Courier?          @relation(fields: [courierId], references: [id])
+
+  totalAmount     Float             // Müşterinin ödediği tutar
+  courierShare    Float             // Kurye payı (%80)
+  platformShare   Float             // Platform payı (%20)
+  vatAmount       Float             // KDV karşılığı (platformShare × %20 / 1.20)
+  netPlatform     Float             // Platform net geliri (platformShare - vatAmount)
+
+  status          TransactionStatus @default(SETTLED)
+  note            String?
+
+  createdAt       DateTime          @default(now())
+
+  @@map("transactions")
+}
+
+enum TransactionStatus {
+  SETTLED   // Escrow serbest bırakıldı, kurye payı ayrıldı
+  PAID      // Kurye IBAN'ına gönderildi
+  CANCELLED // İptal / iade
+}
 
 // ================================
 // ADRES DEFTERİ

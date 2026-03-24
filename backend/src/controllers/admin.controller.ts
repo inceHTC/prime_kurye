@@ -608,3 +608,101 @@ export async function getAllBusinesses(req: Request, res: Response) {
     return res.status(500).json({ success: false, message: 'Sunucu hatası' })
   }
 }
+
+// ================================
+// MUHASEBE / İŞLEM KAYITLARI
+// ================================
+export async function getTransactions(req: Request, res: Response) {
+  try {
+    const { page = 1, limit = 50, startDate, endDate, status } = req.query
+    const where: any = {}
+    if (status) where.status = status
+    if (startDate || endDate) {
+      where.createdAt = {}
+      if (startDate) where.createdAt.gte = new Date(startDate as string)
+      if (endDate) {
+        const end = new Date(endDate as string)
+        end.setHours(23, 59, 59, 999)
+        where.createdAt.lte = end
+      }
+    }
+
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (Number(page) - 1) * Number(limit),
+        take: Number(limit),
+        include: {
+          order: { select: { trackingCode: true, recipientName: true } },
+          courier: { include: { user: { select: { fullName: true } } } },
+        },
+      }),
+      prisma.transaction.count({ where }),
+    ])
+
+    const summary = await prisma.transaction.aggregate({
+      where,
+      _sum: { totalAmount: true, courierShare: true, platformShare: true, vatAmount: true, netPlatform: true },
+    })
+
+    return res.json({
+      success: true,
+      data: {
+        transactions,
+        total,
+        page: Number(page),
+        totalPages: Math.ceil(total / Number(limit)),
+        summary: summary._sum,
+      },
+    })
+  } catch {
+    return res.status(500).json({ success: false, message: 'Sunucu hatası' })
+  }
+}
+
+export async function exportTransactionsCsv(req: Request, res: Response) {
+  try {
+    const { startDate, endDate } = req.query
+    const where: any = {}
+    if (startDate || endDate) {
+      where.createdAt = {}
+      if (startDate) where.createdAt.gte = new Date(startDate as string)
+      if (endDate) {
+        const end = new Date(endDate as string)
+        end.setHours(23, 59, 59, 999)
+        where.createdAt.lte = end
+      }
+    }
+
+    const transactions = await prisma.transaction.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        order: { select: { trackingCode: true, recipientName: true } },
+        courier: { include: { user: { select: { fullName: true } } } },
+      },
+    })
+
+    const header = 'Tarih,Takip Kodu,Alıcı,Kurye,Toplam (₺),Kurye Payı (₺),Platform Payı (₺),KDV (₺),Net Platform (₺),Durum'
+    const rows = transactions.map(t => [
+      new Date(t.createdAt).toLocaleDateString('tr-TR'),
+      t.order.trackingCode,
+      t.order.recipientName,
+      t.courier?.user?.fullName ?? '-',
+      t.totalAmount.toFixed(2),
+      t.courierShare.toFixed(2),
+      t.platformShare.toFixed(2),
+      t.vatAmount.toFixed(2),
+      t.netPlatform.toFixed(2),
+      t.status,
+    ].join(','))
+
+    const csv = [header, ...rows].join('\n')
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+    res.setHeader('Content-Disposition', `attachment; filename="muhasebe-${Date.now()}.csv"`)
+    return res.send('\uFEFF' + csv) // BOM for Excel UTF-8
+  } catch {
+    return res.status(500).json({ success: false, message: 'Sunucu hatası' })
+  }
+}

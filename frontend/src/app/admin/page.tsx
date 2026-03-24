@@ -10,14 +10,14 @@ import {
   XCircle, Clock, AlertCircle, Eye, Ban, Shield,
   Wallet, BarChart2, ArrowUpRight, ArrowDownRight,
   Filter, Download, Bell, Menu, X, ChevronDown,
-  CreditCard, Building2, MapPin, Star, Hash, Camera, Map
+  CreditCard, Building2, MapPin, Star, Hash, Camera, Map, BookOpen
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatCurrency, formatTimeAgo } from '@/lib/utils'
 
-type Tab = 'dashboard' | 'orders' | 'users' | 'couriers' | 'businesses' | 'finance' | 'payouts' | 'escrow' | 'settings' | 'livemap'
+type Tab = 'dashboard' | 'orders' | 'users' | 'couriers' | 'businesses' | 'finance' | 'payouts' | 'escrow' | 'settings' | 'livemap' | 'accounting'
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: 'Beklemede', CONFIRMED: 'Onaylandı', PICKING_UP: 'Kurye Yolda',
@@ -48,6 +48,10 @@ export default function AdminPage() {
   const [payoutSummary, setPayoutSummary] = useState<any>(null)
   const [escrow, setEscrow] = useState<any>(null)
   const [settings, setSettings] = useState<any>(null)
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [txSummary, setTxSummary] = useState<any>(null)
+  const [txStartDate, setTxStartDate] = useState('')
+  const [txEndDate, setTxEndDate] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isHydrated, setIsHydrated] = useState(false)
   const [search, setSearch] = useState('')
@@ -155,6 +159,17 @@ export default function AdminPage() {
           if (res.data.success) setCouriers(res.data.data.couriers)
           break
         }
+        case 'accounting': {
+          const params = new URLSearchParams()
+          if (txStartDate) params.set('startDate', txStartDate)
+          if (txEndDate) params.set('endDate', txEndDate)
+          const res = await api.get(`/admin/transactions?${params}&limit=100`)
+          if (res.data.success) {
+            setTransactions(res.data.data.transactions)
+            setTxSummary(res.data.data.summary)
+          }
+          break
+        }
       }
     } catch { toast.error('Veri yüklenemedi') }
     finally { setIsLoading(false) }
@@ -228,6 +243,7 @@ export default function AdminPage() {
       ]
     },
     { id: 'livemap', label: 'Canlı Harita', icon: Map },
+    { id: 'accounting', label: 'Muhasebe', icon: BookOpen },
     { id: 'settings', label: 'Sistem Ayarları', icon: Settings },
   ]
 
@@ -868,6 +884,93 @@ export default function AdminPage() {
           {/* =================== CANLI HARİTA =================== */}
           {activeTab === 'livemap' && (
             <LiveMap couriers={couriers} onRefresh={fetchTabData} />
+          )}
+
+          {/* =================== MUHASEBE =================== */}
+          {activeTab === 'accounting' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* Filtreler + Export */}
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input type="date" value={txStartDate} onChange={e => setTxStartDate(e.target.value)}
+                    style={{ fontFamily: "'Barlow', sans-serif", fontSize: '0.82rem', border: '1px solid rgba(28,8,0,0.12)', borderRadius: 7, padding: '7px 10px', color: '#1c0800', background: '#fff' }} />
+                  <span style={{ color: '#a89080', fontSize: '0.82rem' }}>—</span>
+                  <input type="date" value={txEndDate} onChange={e => setTxEndDate(e.target.value)}
+                    style={{ fontFamily: "'Barlow', sans-serif", fontSize: '0.82rem', border: '1px solid rgba(28,8,0,0.12)', borderRadius: 7, padding: '7px 10px', color: '#1c0800', background: '#fff' }} />
+                  <button onClick={fetchTabData}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#1c0800', color: '#fff', border: 'none', borderRadius: 7, cursor: 'pointer', fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.8rem' }}>
+                    <Filter size={12} /> Filtrele
+                  </button>
+                </div>
+                <a
+                  href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/admin/transactions/export${txStartDate ? `?startDate=${txStartDate}${txEndDate ? `&endDate=${txEndDate}` : ''}` : ''}`}
+                  style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#16a34a', color: '#fff', borderRadius: 7, textDecoration: 'none', fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.8rem' }}>
+                  <Download size={13} /> CSV İndir
+                </a>
+              </div>
+
+              {/* Özet Kartları */}
+              {txSummary && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+                  {[
+                    { label: 'Toplam Ciro', value: txSummary.totalAmount, color: '#c8860a', bg: '#fef8ed' },
+                    { label: 'Kurye Payı', value: txSummary.courierShare, color: '#2563eb', bg: '#eff6ff' },
+                    { label: 'Platform Payı', value: txSummary.platformShare, color: '#7c3aed', bg: '#f5f3ff' },
+                    { label: 'KDV Karşılığı', value: txSummary.vatAmount, color: '#dc2626', bg: '#fee2e2' },
+                    { label: 'Net Kâr', value: txSummary.netPlatform, color: '#16a34a', bg: '#f0fdf4' },
+                  ].map(s => (
+                    <div key={s.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', padding: '16px 18px', borderTop: `3px solid ${s.color}` }}>
+                      <p style={{ fontSize: '0.68rem', color: '#a89080', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>{s.label}</p>
+                      <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '1.4rem', color: '#1c0800', lineHeight: 1 }}>
+                        {(s.value ?? 0).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Tablo */}
+              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(28,8,0,0.08)', overflow: 'hidden' }}>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Barlow', sans-serif" }}>
+                    <thead>
+                      <tr style={{ background: '#faf9f7', borderBottom: '1px solid rgba(28,8,0,0.08)' }}>
+                        {['TARİH', 'TAKİP KODU', 'ALICI', 'KURYE', 'TOPLAM', 'KURYE PAYI', 'PLATFORM', 'KDV', 'NET KÂR', 'DURUM'].map(h => (
+                          <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: '0.68rem', fontWeight: 700, color: '#a89080', whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactions.length === 0 ? (
+                        <tr><td colSpan={10} style={{ padding: 40, textAlign: 'center', color: '#a89080', fontSize: '0.875rem' }}>Kayıt bulunamadı</td></tr>
+                      ) : transactions.map((t: any) => (
+                        <tr key={t.id} style={{ borderBottom: '1px solid rgba(28,8,0,0.05)' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#faf9f7' }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+                          <td style={{ padding: '10px 14px', fontSize: '0.75rem', color: '#a89080', whiteSpace: 'nowrap' }}>{new Date(t.createdAt).toLocaleDateString('tr-TR')}</td>
+                          <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontSize: '0.75rem', color: '#c8860a', fontWeight: 600 }}>{t.order?.trackingCode}</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', color: '#1c0800' }}>{t.order?.recipientName}</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', color: '#4a3020' }}>{t.courier?.user?.fullName ?? '—'}</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', fontWeight: 700, color: '#1c0800', whiteSpace: 'nowrap' }}>{t.totalAmount.toFixed(2)} ₺</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', color: '#2563eb', fontWeight: 600, whiteSpace: 'nowrap' }}>{t.courierShare.toFixed(2)} ₺</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', color: '#7c3aed', whiteSpace: 'nowrap' }}>{t.platformShare.toFixed(2)} ₺</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', color: '#dc2626', whiteSpace: 'nowrap' }}>{t.vatAmount.toFixed(2)} ₺</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.82rem', color: '#16a34a', fontWeight: 600, whiteSpace: 'nowrap' }}>{t.netPlatform.toFixed(2)} ₺</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+                              background: t.status === 'PAID' ? '#dcfce7' : t.status === 'SETTLED' ? '#fef9c3' : '#f3f4f6',
+                              color: t.status === 'PAID' ? '#166534' : t.status === 'SETTLED' ? '#854d0e' : '#6b7280' }}>
+                              {t.status === 'PAID' ? 'Ödendi' : t.status === 'SETTLED' ? 'Bekliyor' : 'İptal'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           )}
 
         </div>

@@ -131,6 +131,26 @@ export async function confirmDelivery(req: Request, res: Response) {
       })
     }
 
+    // Finansal işlem kaydı oluştur
+    const totalAmount   = order.price
+    const courierShare  = order.courierAmount ?? totalAmount * 0.80
+    const platformShare = totalAmount - courierShare
+    const vatAmount     = Number((platformShare * 0.20 / 1.20).toFixed(2))
+    const netPlatform   = Number((platformShare - vatAmount).toFixed(2))
+
+    await prisma.transaction.create({
+      data: {
+        orderId,
+        courierId: order.courierId ?? undefined,
+        totalAmount,
+        courierShare,
+        platformShare: Number(platformShare.toFixed(2)),
+        vatAmount,
+        netPlatform,
+        status: 'SETTLED',
+      },
+    })
+
     return res.json({
       success: true,
       message: 'Teslimat onaylandı, ödeme kuryeye aktarıldı',
