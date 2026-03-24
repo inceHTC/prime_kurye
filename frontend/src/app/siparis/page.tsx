@@ -188,8 +188,9 @@ function SiparisContent() {
       dropoffDistrict: form.recipientDistrict,
       deliveryType: form.deliveryType,
       isFragile: form.isFragile,
+      packageWeight: form.packageWeight,
     })
-  }, [form.deliveryType, form.isFragile, form.packageValue, form.recipientDistrict, form.senderDistrict])
+  }, [form.deliveryType, form.isFragile, form.packageValue, form.packageWeight, form.recipientDistrict, form.senderDistrict])
 
   useEffect(() => {
     setForm((current) => ({
@@ -421,6 +422,7 @@ function SiparisContent() {
       dropoffDistrict: form.recipientDistrict,
       deliveryType: form.deliveryType,
       isFragile: form.isFragile,
+      packageWeight: form.packageWeight,
     })
 
     let senderLat = form.senderLat
@@ -449,6 +451,7 @@ function SiparisContent() {
         deliveryType: form.deliveryType,
         vehicle: form.vehicle,
         isFragile: form.isFragile,
+        packageWeight: form.packageWeight,
       })
 
       setPriceEstimate(estimate)
@@ -814,7 +817,8 @@ function SiparisContent() {
                     value={deliveryTypes.find((item) => item.value === form.deliveryType)?.label ?? '-'}
                     highlightClass="text-amber-600"
                   />
-                  {form.isFragile && <SummaryLine label="Hassas Paket Farkı" value="+25.00 TL" highlightClass="text-orange-600" />}
+                  {form.isFragile && <SummaryLine label="Hassas Paket Farkı" value="+30.00 TL" highlightClass="text-orange-600" />}
+                  {form.packageWeight > 5 && <SummaryLine label={`Ağırlık Farkı (${form.packageWeight} kg)`} value={`+${form.packageWeight > 15 ? '60' : '30'}.00 TL`} highlightClass="text-orange-600" />}
                   {(priceEstimate || routePreview) && (
                     <div className="mt-4 p-4 bg-amber-500 rounded-xl flex items-center justify-between text-white">
                       <span className="font-medium">Toplam Tutar</span>

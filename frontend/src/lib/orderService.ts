@@ -38,9 +38,9 @@ export const orderService = {
     recipientLat: number
     recipientLng: number
     deliveryType: string
-    // GÜNCELLEME: Sadece 'MOTORCYCLE' kabul ediliyor
-    vehicle: 'MOTORCYCLE' 
+    vehicle: 'MOTORCYCLE'
     isFragile?: boolean
+    packageWeight?: number
     packageValue?: number
   }): Promise<PriceEstimate> {
     const res = await api.post('/orders/estimate', data)

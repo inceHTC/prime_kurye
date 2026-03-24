@@ -105,8 +105,11 @@ export default function AdminPage() {
       if (statsRes.status === 'fulfilled' && statsRes.value.data.success) setStats(statsRes.value.data.data)
       if (ordersRes.status === 'fulfilled' && ordersRes.value.data.success) setOrders(ordersRes.value.data.data.orders)
       if (couriersRes.status === 'fulfilled' && couriersRes.value.data.success) setCouriers(couriersRes.value.data.data.couriers)
-    } catch {
-      toast.error('Genel bakış verileri yüklenemedi')
+
+      const allFailed = statsRes.status === 'rejected' && ordersRes.status === 'rejected' && couriersRes.status === 'rejected'
+      if (allFailed) toast.error('Genel bakış verileri yüklenemedi. Yenile butonuna basarak tekrar deneyin.')
+    } catch (err) {
+      console.error('Dashboard fetch error:', err)
     } finally {
       setIsLoading(false)
     }
@@ -798,6 +801,9 @@ export default function AdminPage() {
                     { key: 'pricePerKmMoto', label: 'Ekspres Katsayı (×)' },
                     { key: 'pricePerKmCar', label: 'Aynı Gün Katsayı (×)' },
                     { key: 'pricePerKmBike', label: 'Planlanmış Katsayı (×)' },
+                    { key: 'fragileFee', label: 'Kırılabilir Paket Ek Ücreti (₺)' },
+                    { key: 'weightFeeLight', label: 'Ağırlık Ek Ücreti 5-15 kg (₺)' },
+                    { key: 'weightFeeHeavy', label: 'Ağırlık Ek Ücreti 15 kg+ (₺)' },
                   ].map(f => (
                     <div key={f.key}>
                       <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#4a3020', marginBottom: 5 }}>{f.label}</label>
