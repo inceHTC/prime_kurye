@@ -768,17 +768,20 @@ export default function AdminPage() {
 
               {/* Fiyatlandırma */}
               <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(28,8,0,0.08)', padding: '24px' }}>
-                <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#1c0800', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#1c0800', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <DollarSign size={16} color="#c8860a" /> Fiyatlandırma
                 </h3>
+                <p style={{ fontSize: '0.72rem', color: '#a89080', marginBottom: 16 }}>
+                  Baz: 65₺ · Km: 9₺→7₺→5₺ (kademeli) · Karşı yaka: ×1,85 mesafe
+                </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {[
-                    { key: 'basePriceExpress', label: 'Ekspres Taban Fiyat (₺)' },
-                    { key: 'basePriceSameDay', label: 'Aynı Gün Taban Fiyat (₺)' },
-                    { key: 'basePriceScheduled', label: 'Planlanmış Taban Fiyat (₺)' },
-                    { key: 'pricePerKmMoto', label: 'Motosiklet km Ücreti (₺)' },
-                    { key: 'pricePerKmCar', label: 'Araba km Ücreti (₺)' },
-                    { key: 'pricePerKmBike', label: 'Bisiklet km Ücreti (₺)' },
+                    { key: 'basePriceExpress', label: 'Ekspres Min. Fiyat (₺)' },
+                    { key: 'basePriceSameDay', label: 'Aynı Gün Min. Fiyat (₺)' },
+                    { key: 'basePriceScheduled', label: 'Planlanmış Min. Fiyat (₺)' },
+                    { key: 'pricePerKmMoto', label: 'Ekspres Katsayı (×)' },
+                    { key: 'pricePerKmCar', label: 'Aynı Gün Katsayı (×)' },
+                    { key: 'pricePerKmBike', label: 'Planlanmış Katsayı (×)' },
                   ].map(f => (
                     <div key={f.key}>
                       <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#4a3020', marginBottom: 5 }}>{f.label}</label>

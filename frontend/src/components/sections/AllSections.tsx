@@ -332,14 +332,14 @@ export function PricingSection() {
             <div style={{ background: '#1c0800', padding: '18px 28px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 16 }}>
                 <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: '0.78rem', color: 'rgba(255,255,255,0.50)', }}>Hizmet</span>
-                <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: '0.78rem', color: 'rgba(255,255,255,0.50)', }}>Başlangıç</span>
-                <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: '0.78rem', color: 'rgba(255,255,255,0.50)', }}>KM başına</span>
+                <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: '0.78rem', color: 'rgba(255,255,255,0.50)', }}>Min. Fiyat</span>
+                <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: '0.78rem', color: 'rgba(255,255,255,0.50)', }}>Katsayı</span>
               </div>
             </div>
             {[
-              { name: 'Ekspres', base: '200 ₺', km: '+4,90 ₺', highlight: true },
-              { name: 'Aynı Gün', base: '94,90 ₺', km: '+3,50 ₺', highlight: false },
-              { name: 'Planlanmış', base: '110,90 ₺', km: '+3,90 ₺', highlight: false },
+              { name: 'Ekspres', base: '110 ₺', km: '×1,40', highlight: true },
+              { name: 'Aynı Gün', base: '80 ₺', km: '×1,00', highlight: false },
+              { name: 'Planlanmış', base: '68 ₺', km: '×0,85', highlight: false },
             ].map((row, i) => (
               <div
                 key={row.name}
@@ -358,7 +358,10 @@ export function PricingSection() {
                 <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.9rem', color: '#c8860a' }}>{row.km}</span>
               </div>
             ))}
-            <div style={{ padding: '18px 28px', background: '#f5f3ef', borderTop: '1px solid rgba(28,8,0,0.08)' }}>
+            <div style={{ padding: '12px 28px', background: '#f5f3ef', borderTop: '1px solid rgba(28,8,0,0.08)' }}>
+              <p style={{ fontSize: '0.7rem', color: '#a89080', marginBottom: 10 }}>
+                65₺ baz + kademeli km ücreti (9₺→7₺→5₺). Karşı yaka geçişinde ×1,85 mesafe katsayısı uygulanır.
+              </p>
               <Link href="/hesapla" className="btn-primary" style={{ width: '100%', justifyContent: 'center', display: 'flex' }}>
                 Fiyat Hesapla
               </Link>
