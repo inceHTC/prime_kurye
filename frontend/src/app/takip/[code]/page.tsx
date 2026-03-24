@@ -154,7 +154,7 @@ export default function TakipDetayPage() {
           <Link href="/takip" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', display: 'flex', padding: 6 }}>
             <ArrowLeft size={20} />
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
             <div style={{ width: 30, height: 30, background: '#c8860a', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={14} color="#1c0800" strokeWidth={2.5} />
             </div>
@@ -162,7 +162,7 @@ export default function TakipDetayPage() {
               VIN<span style={{ color: '#c8860a' }}>KURYE</span>
             </span>
             <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>· Sipariş Takip</span>
-          </div>
+          </Link>
           <span
             style={{
               marginLeft: 'auto',
