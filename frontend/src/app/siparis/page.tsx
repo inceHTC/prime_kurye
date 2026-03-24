@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useJsApiLoader } from '@react-google-maps/api'
 import {
   ArrowLeft,
+  BookMarked,
+  ChevronDown,
   ChevronRight,
   Clock,
   Loader2,
@@ -17,6 +19,7 @@ import {
   Zap,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import api from '@/lib/api'
 import { orderService } from '@/lib/orderService'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/lib/utils'
@@ -124,8 +127,56 @@ function SiparisContent() {
   const [senderSuggestions, setSenderSuggestions] = useState<NeighborhoodPrediction[]>([])
   const [recipientSuggestions, setRecipientSuggestions] = useState<NeighborhoodPrediction[]>([])
   const [mapsAutocompleteAvailable, setMapsAutocompleteAvailable] = useState(false)
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([])
 
   const getUserDraftStorageKey = (userId?: string) => (userId ? `prime-kurye-order-draft-${userId}` : null)
+
+  useEffect(() => {
+    if (!accessToken) return
+    api.get('/addresses').then(res => {
+      if (res.data.success) setSavedAddresses(res.data.data || [])
+    }).catch(() => {})
+  }, [accessToken])
+
+  const applySavedAddress = (prefix: 'sender' | 'recipient', saved: any) => {
+    let foundDistrict = ''
+    let neighborhood = ''
+    let detail = saved.address
+
+    for (const d of ISTANBUL_DISTRICTS) {
+      if (saved.address.toLowerCase().includes(d.label.toLowerCase())) {
+        foundDistrict = d.value
+        const idx = saved.address.toLowerCase().indexOf(d.label.toLowerCase())
+        const before = saved.address.substring(0, idx).replace(/,\s*$/, '').trim()
+        const parts = before.split(',').map((p: string) => p.trim()).filter(Boolean)
+        neighborhood = parts.pop() || 'Merkez'
+        detail = parts.join(', ') || before || saved.address
+        break
+      }
+    }
+
+    setForm(current => prefix === 'sender' ? {
+      ...current,
+      senderDistrict: foundDistrict,
+      senderNeighborhood: neighborhood,
+      senderAddressDetail: detail || saved.address,
+      senderAddress: saved.address,
+      senderLat: saved.lat,
+      senderLng: saved.lng,
+    } : {
+      ...current,
+      recipientDistrict: foundDistrict,
+      recipientNeighborhood: neighborhood,
+      recipientAddressDetail: detail || saved.address,
+      recipientAddress: saved.address,
+      recipientLat: saved.lat,
+      recipientLng: saved.lng,
+    })
+
+    if (!foundDistrict) {
+      toast('İlçe tespit edilemedi, lütfen ilçe seçimini tamamlayın.', { icon: 'ℹ️' })
+    }
+  }
 
   const routePreview = useMemo(() => {
     if (!form.senderDistrict || !form.recipientDistrict) {
@@ -619,6 +670,13 @@ function SiparisContent() {
                   </div>
                 </div>
 
+                {savedAddresses.length > 0 && (
+                  <SavedAddressPicker
+                    label="Alım noktası için kayıtlı adres seç"
+                    addresses={savedAddresses}
+                    onSelect={(a) => applySavedAddress('sender', a)}
+                  />
+                )}
                 <AddressCard
                   title="Alım Noktası"
                   accentClass="text-blue-700"
@@ -640,6 +698,13 @@ function SiparisContent() {
                   onNotesChange={(value) => setForm((current) => ({ ...current, senderNotes: value }))}
                 />
 
+                {savedAddresses.length > 0 && (
+                  <SavedAddressPicker
+                    label="Teslimat noktası için kayıtlı adres seç"
+                    addresses={savedAddresses}
+                    onSelect={(a) => applySavedAddress('recipient', a)}
+                  />
+                )}
                 <AddressCard
                   title="Teslimat Noktası"
                   accentClass="text-red-600"
@@ -1066,6 +1131,48 @@ function isAddressStepTextValid(form: OrderFormState) {
       form.recipientDistrict &&
       form.recipientNeighborhood.trim() &&
       form.recipientAddressDetail.trim()
+  )
+}
+
+function SavedAddressPicker({
+  label,
+  addresses,
+  onSelect,
+}: {
+  label: string
+  addresses: any[]
+  onSelect: (address: any) => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-amber-300 bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 transition-colors"
+      >
+        <BookMarked className="w-4 h-4 flex-shrink-0" />
+        <span className="flex-1 text-left">{label}</span>
+        <ChevronDown className={cn('w-4 h-4 transition-transform', open && 'rotate-180')} />
+      </button>
+
+      {open && (
+        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+          {addresses.map((a: any) => (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => { onSelect(a); setOpen(false) }}
+              className="w-full text-left px-4 py-3 hover:bg-amber-50 transition-colors border-b border-gray-50 last:border-0"
+            >
+              <p className="text-sm font-semibold text-dark-900">{a.label}</p>
+              <p className="text-xs text-dark-400 mt-0.5 truncate">{a.address}</p>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
