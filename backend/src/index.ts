@@ -2,6 +2,15 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+import * as Sentry from '@sentry/node'
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.2 : 1.0,
+  enabled: !!process.env.SENTRY_DSN,
+})
+
 import express from 'express'
 import { createServer } from 'http'
 import cors from 'cors'
@@ -92,6 +101,8 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 app.get('/health', (_, res) => {
   res.json({ status: 'ok', message: 'Vın Kurye API calisiyor', timestamp: new Date() })
 })
+
+Sentry.setupExpressErrorHandler(app)
 
 app.use((_, res) => {
   res.status(404).json({ success: false, message: 'Endpoint bulunamadi' })

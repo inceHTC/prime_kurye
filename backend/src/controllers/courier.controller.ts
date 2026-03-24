@@ -1,7 +1,59 @@
 import { Request, Response } from 'express'
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
 import { prisma } from '../lib/prisma'
 import { emitOrderUpdate, emitCourierLocation } from '../lib/socket'
 import { sendCourierAssignedEmail, sendPickedUpEmail, sendDeliveredEmail } from '../services/email.service'
+
+// ================================
+// TESLİM FOTOĞRAFI UPLOAD
+// ================================
+const proofStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(process.cwd(), 'uploads', 'delivery-proofs')
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    cb(null, dir)
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase()
+    cb(null, `proof-${req.params.id}-${Date.now()}${ext}`)
+  },
+})
+
+export const uploadProofMiddleware = multer({
+  storage: proofStorage,
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.webp']
+    if (allowed.includes(path.extname(file.originalname).toLowerCase())) cb(null, true)
+    else cb(new Error('Sadece JPG ve PNG yüklenebilir'))
+  },
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single('proof')
+
+export async function uploadDeliveryProof(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.userId
+    const { id } = req.params
+    const file = req.file
+    if (!file) return res.status(400).json({ success: false, message: 'Fotoğraf seçilmedi' })
+
+    const courier = await prisma.courier.findUnique({ where: { userId } })
+    if (!courier) return res.status(403).json({ success: false, message: 'Kurye profili bulunamadı' })
+
+    const order = await prisma.order.findUnique({ where: { id } })
+    if (!order || order.courierId !== courier.id) {
+      return res.status(403).json({ success: false, message: 'Bu siparişe erişim yok' })
+    }
+
+    const proofUrl = `/uploads/delivery-proofs/${file.filename}`
+    await prisma.order.update({ where: { id }, data: { deliveryProofUrl: proofUrl } })
+
+    return res.json({ success: true, data: { proofUrl } })
+  } catch {
+    return res.status(500).json({ success: false, message: 'Sunucu hatası' })
+  }
+}
 
 // ================================
 // KURYE SİPARİŞLERİ

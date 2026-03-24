@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
+import Image from 'next/image'
 import {
   ArrowLeft,
   Bike,
+  Camera,
   CheckCircle,
   Clock,
   CreditCard,
@@ -424,6 +426,29 @@ export default function TakipDetayPage() {
                     ))}
                 </div>
               </div>
+
+              {order.status === 'DELIVERED' && order.deliveryProofUrl && (
+                <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(28,8,0,0.08)', padding: '18px 20px' }}>
+                  <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1c0800', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Camera size={15} color="#16a34a" /> Teslimat Fotoğrafı
+                  </h3>
+                  <a
+                    href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${order.deliveryProofUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: 'block', borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(22,163,74,0.2)' }}
+                  >
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${order.deliveryProofUrl}`}
+                      alt="Teslimat kanıtı"
+                      width={500}
+                      height={300}
+                      style={{ width: '100%', height: 'auto', display: 'block' }}
+                    />
+                  </a>
+                  <p style={{ fontSize: '0.72rem', color: '#a89080', marginTop: 8, textAlign: 'center' }}>Kuryenin teslim sırasında çektiği fotoğraf</p>
+                </div>
+              )}
             </div>
 
             <div className="hidden lg:block">

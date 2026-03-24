@@ -9,7 +9,7 @@ import {
   XCircle, Clock, AlertCircle, Eye, Ban, Shield,
   Wallet, BarChart2, ArrowUpRight, ArrowDownRight,
   Filter, Download, Bell, Menu, X, ChevronDown,
-  CreditCard, Building2, MapPin, Star, Hash
+  CreditCard, Building2, MapPin, Star, Hash, Camera
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
@@ -904,9 +904,22 @@ function OrderTable({ orders, couriers, onAssign, compact = false }: {
                 <p style={{ fontSize: '0.7rem', color: '#a89080' }}>{o.recipientPhone}</p>
               </td>
               <td style={{ padding: '12px 16px' }}>
-                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: '0.7rem', fontWeight: 700, ...STATUS_STYLES[o.status] }}>
-                  {STATUS_LABELS[o.status]}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: '0.7rem', fontWeight: 700, ...STATUS_STYLES[o.status] }}>
+                    {STATUS_LABELS[o.status]}
+                  </span>
+                  {o.deliveryProofUrl && (
+                    <a
+                      href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${o.deliveryProofUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Teslimat fotoğrafını görüntüle"
+                      style={{ display: 'flex', alignItems: 'center', color: '#16a34a' }}
+                    >
+                      <Camera size={13} />
+                    </a>
+                  )}
+                </div>
               </td>
               {!compact && (
                 <>

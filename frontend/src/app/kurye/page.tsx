@@ -36,6 +36,9 @@ export default function KuryePanelPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar || null)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
+  const [proofOrderId, setProofOrderId] = useState<string | null>(null)
+  const [uploadingProof, setUploadingProof] = useState(false)
+  const proofInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isReady) fetchData()
@@ -94,12 +97,39 @@ export default function KuryePanelPage() {
   }
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
+    if (status === 'DELIVERED') {
+      setProofOrderId(orderId)
+      proofInputRef.current?.click()
+      return
+    }
     try {
-      await api.patch(`/orders/${orderId}/status`, { status })
+      await api.patch(`/courier/orders/${orderId}/status`, { status })
       toast.success('Durum güncellendi!')
       fetchData()
     } catch {
       toast.error('Durum güncellenemedi')
+    }
+  }
+
+  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !proofOrderId) return
+    setUploadingProof(true)
+    try {
+      const formData = new FormData()
+      formData.append('proof', file)
+      await api.post(`/courier/orders/${proofOrderId}/proof`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      await api.patch(`/courier/orders/${proofOrderId}/status`, { status: 'DELIVERED' })
+      toast.success('Teslimat fotoğraflandı ve teslim edildi olarak işaretlendi!', { icon: '✅' })
+      fetchData()
+    } catch {
+      toast.error('Fotoğraf yüklenemedi')
+    } finally {
+      setUploadingProof(false)
+      setProofOrderId(null)
+      if (proofInputRef.current) proofInputRef.current.value = ''
     }
   }
 
@@ -157,6 +187,16 @@ export default function KuryePanelPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f0ede8', fontFamily: "'Barlow', sans-serif" }}>
+      {/* Teslim fotoğrafı gizli input */}
+      <input ref={proofInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" style={{ display: 'none' }} onChange={handleProofUpload} />
+
+      {/* Proof yükleniyor overlay */}
+      {uploadingProof && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(28,8,0,0.75)', zIndex: 999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+          <div style={{ width: 48, height: 48, border: '4px solid rgba(200,134,10,0.3)', borderTopColor: '#c8860a', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <p style={{ color: '#fff', fontWeight: 700, fontSize: '1rem' }}>Teslim fotoğrafı yükleniyor...</p>
+        </div>
+      )}
 
       {/* Header */}
       <header style={{ background: '#1c0800', position: 'sticky', top: 0, zIndex: 40, borderBottom: '1px solid rgba(200,134,10,0.12)' }}>
