@@ -87,9 +87,9 @@ export default function AdresDefteri() {
   return (
     <div style={s.page}>
       <header style={s.header}>
-        <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', textDecoration: 'none', padding: 4 }}>
+        <button onClick={() => router.back()} style={{ color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 4 }}>
           <ArrowLeft size={18} />
-        </Link>
+        </button>
         <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem' }}>Adres Defteri</span>
       </header>
 

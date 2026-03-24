@@ -158,10 +158,6 @@ export default function BireyselDashboardPage() {
               <LayoutDashboard size={15} color="#c8860a" />
               <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c8860a' }}>Siparişlerim</span>
             </div>
-            <Link href="/siparis" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
-              <Plus size={15} color="#7a6050" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Kurye Çağır</span>
-            </Link>
             <Link href="/dashboard/adresler" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
               <MapPin size={15} color="#7a6050" />
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Adres Defteri</span>

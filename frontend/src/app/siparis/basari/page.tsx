@@ -7,12 +7,15 @@ import Link from 'next/link'
 import { CheckCircle, Copy, ArrowRight, Zap } from 'lucide-react'
 import { useState, Suspense } from 'react'
 import toast from 'react-hot-toast'
+import { useAuthStore } from '@/store/authStore'
 
 // 1. İçerik Bileşeni (Mevcut kodun buraya taşındı)
 function SiparisBasariContent() {
   const searchParams = useSearchParams()
   const trackingCode = searchParams.get('code') || ''
   const [copied, setCopied] = useState(false)
+  const { user } = useAuthStore()
+  const dashboardPath = user?.role === 'INDIVIDUAL' ? '/dashboard/bireysel' : '/dashboard'
 
   const handleCopy = () => {
     navigator.clipboard.writeText(trackingCode)
@@ -70,7 +73,7 @@ function SiparisBasariContent() {
           Siparişi Takip Et <ArrowRight size={16} />
         </Link>
         <Link
-          href="/dashboard"
+          href={dashboardPath}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '13px 24px', background: '#f5f3ef', color: '#4a3020',

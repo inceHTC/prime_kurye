@@ -573,9 +573,9 @@ function SiparisContent() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="container-lg px-4 md:px-6 h-16 flex items-center gap-4">
-          <Link href="/" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+          <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
             <ArrowLeft className="w-5 h-5 text-dark-700" />
-          </Link>
+          </button>
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-gradient-brand rounded-lg flex items-center justify-center">
               <Zap className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />

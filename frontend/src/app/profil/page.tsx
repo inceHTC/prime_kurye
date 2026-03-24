@@ -137,9 +137,9 @@ export default function ProfilPage() {
       }}>
         <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 20px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/dashboard" style={{ padding: 8, borderRadius: 8, color: '#4a3020', textDecoration: 'none', display: 'flex' }}>
+            <button onClick={() => router.back()} style={{ padding: 8, borderRadius: 8, color: '#4a3020', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
               <ArrowLeft size={20} />
-            </Link>
+            </button>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
               <div style={{ width: 30, height: 30, background: '#c8860a', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Zap size={14} color="#1c0800" strokeWidth={2.5} />

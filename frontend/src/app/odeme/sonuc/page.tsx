@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Loader2, Zap } from 'lucide-react'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 
 // 1. Mantıksal işlemleri yapan alt bileşen (Mevcut kodun buraya taşındı)
 function OdemeSonucContent() {
@@ -13,10 +14,12 @@ function OdemeSonucContent() {
   const token = searchParams.get('token')
   const [status, setStatus] = useState<'loading' | 'success' | 'failed'>('loading')
   const [data, setData] = useState<any>(null)
+  const { user } = useAuthStore()
+  const dashboardPath = user?.role === 'INDIVIDUAL' ? '/dashboard/bireysel' : '/dashboard'
 
   useEffect(() => {
     if (!token) {
-      router.push('/dashboard')
+      router.push(dashboardPath)
       return
     }
     checkResult()
@@ -75,7 +78,7 @@ function OdemeSonucContent() {
             </div>
           )}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-            <Link href="/dashboard" style={{
+            <Link href={dashboardPath} style={{
               padding: '12px 24px', background: '#c8860a', color: '#1c0800',
               borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
             }}>
@@ -112,7 +115,7 @@ function OdemeSonucContent() {
             }}>
               Tekrar Dene
             </button>
-            <Link href="/dashboard" style={{
+            <Link href={dashboardPath} style={{
               padding: '12px 24px', background: '#f5f3ef', color: '#1c0800',
               borderRadius: 8, textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem',
             }}>

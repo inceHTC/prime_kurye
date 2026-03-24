@@ -13,7 +13,8 @@ function PaymentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
-  const { accessToken, _hasHydrated } = useAuthStore()
+  const { accessToken, _hasHydrated, user } = useAuthStore()
+  const dashboardPath = user?.role === 'INDIVIDUAL' ? '/dashboard/bireysel' : '/dashboard'
 
   const [order, setOrder] = useState<any>(null)
   const [checkoutForm, setCheckoutForm] = useState('')
@@ -28,7 +29,7 @@ function PaymentContent() {
     }
 
     if (!orderId) {
-      router.push('/dashboard')
+      router.push(dashboardPath)
       return
     }
 
@@ -50,12 +51,12 @@ function PaymentContent() {
 
         if (response.data.data.isPaid) {
           toast.success('Bu sipariş zaten ödendi')
-          router.push('/dashboard')
+          router.push(dashboardPath)
         }
       }
     } catch {
       toast.error('Sipariş bulunamadı')
-      router.push('/dashboard')
+      router.push(dashboardPath)
     } finally {
       setIsLoading(false)
     }
@@ -118,9 +119,9 @@ function PaymentContent() {
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: "'Barlow', sans-serif" }}>
       <header style={{ background: '#1c0800', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/dashboard" style={{ color: 'rgba(255,255,255,0.50)', textDecoration: 'none', display: 'flex', padding: 6 }}>
+          <button onClick={() => router.back()} style={{ color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 6 }}>
             <ArrowLeft size={20} />
-          </Link>
+          </button>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
             <div style={{ width: 30, height: 30, background: '#c8860a', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={14} color="#1c0800" strokeWidth={2.5} />
