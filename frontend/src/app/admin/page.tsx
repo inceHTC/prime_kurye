@@ -3,20 +3,21 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api'
 import {
   Zap, LogOut, Package, Users, Bike, TrendingUp, DollarSign,
   Settings, RefreshCw, Search, ChevronRight, CheckCircle,
   XCircle, Clock, AlertCircle, Eye, Ban, Shield,
   Wallet, BarChart2, ArrowUpRight, ArrowDownRight,
   Filter, Download, Bell, Menu, X, ChevronDown,
-  CreditCard, Building2, MapPin, Star, Hash, Camera
+  CreditCard, Building2, MapPin, Star, Hash, Camera, Map
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatCurrency, formatTimeAgo } from '@/lib/utils'
 
-type Tab = 'dashboard' | 'orders' | 'users' | 'couriers' | 'businesses' | 'finance' | 'payouts' | 'escrow' | 'settings'
+type Tab = 'dashboard' | 'orders' | 'users' | 'couriers' | 'businesses' | 'finance' | 'payouts' | 'escrow' | 'settings' | 'livemap'
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: 'Beklemede', CONFIRMED: 'Onaylandı', PICKING_UP: 'Kurye Yolda',
@@ -149,6 +150,11 @@ export default function AdminPage() {
           if (res.data.success) setSettings(res.data.data)
           break
         }
+        case 'livemap': {
+          const res = await api.get('/admin/couriers')
+          if (res.data.success) setCouriers(res.data.data.couriers)
+          break
+        }
       }
     } catch { toast.error('Veri yüklenemedi') }
     finally { setIsLoading(false) }
@@ -221,6 +227,7 @@ export default function AdminPage() {
         { id: 'payouts', label: 'Hakedişler', icon: CreditCard },
       ]
     },
+    { id: 'livemap', label: 'Canlı Harita', icon: Map },
     { id: 'settings', label: 'Sistem Ayarları', icon: Settings },
   ]
 
@@ -855,6 +862,11 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* =================== CANLI HARİTA =================== */}
+          {activeTab === 'livemap' && (
+            <LiveMap couriers={couriers} onRefresh={fetchTabData} />
+          )}
+
         </div>
       </main>
 
@@ -957,6 +969,143 @@ function OrderTable({ orders, couriers, onAssign, compact = false }: {
           ))}
         </tbody>
       </table>
+    </div>
+  )
+}
+
+// ================================
+// CANLI HARİTA
+// ================================
+const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''
+
+function LiveMap({ couriers, onRefresh }: { couriers: any[], onRefresh: () => void }) {
+  const [selected, setSelected] = useState<any>(null)
+  const [autoRefresh, setAutoRefresh] = useState(true)
+
+  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: GOOGLE_MAPS_KEY })
+
+  useEffect(() => {
+    if (!autoRefresh) return
+    const interval = setInterval(onRefresh, 15000)
+    return () => clearInterval(interval)
+  }, [autoRefresh, onRefresh])
+
+  const onlineCouriers = couriers.filter(c => c.isOnline && c.currentLat && c.currentLng)
+  const offlineCouriers = couriers.filter(c => !c.isOnline)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Üst bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ background: '#f0fdf4', border: '1px solid rgba(22,163,74,0.20)', borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a' }} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#166534' }}>{onlineCouriers.length} Çevrimiçi</span>
+          </div>
+          <div style={{ background: '#f3f4f6', border: '1px solid rgba(28,8,0,0.10)', borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#9ca3af' }} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#6b7280' }}>{offlineCouriers.length} Çevrimdışı</span>
+          </div>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: '#4a3020', cursor: 'pointer', userSelect: 'none' }}>
+            <input type="checkbox" checked={autoRefresh} onChange={e => setAutoRefresh(e.target.checked)} />
+            15 sn'de bir güncelle
+          </label>
+          <button onClick={onRefresh} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px', background: '#fff', border: '1px solid rgba(28,8,0,0.12)', borderRadius: 6, cursor: 'pointer', fontFamily: "'Barlow', sans-serif", fontWeight: 600, fontSize: '0.78rem', color: '#4a3020' }}>
+            <RefreshCw size={12} /> Yenile
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, height: 600 }}>
+        {/* Harita */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(28,8,0,0.08)', overflow: 'hidden' }}>
+          {isLoaded ? (
+            <GoogleMap
+              mapContainerStyle={{ width: '100%', height: '100%' }}
+              center={{ lat: 41.0082, lng: 28.9784 }}
+              zoom={11}
+              options={{ disableDefaultUI: false, zoomControl: true, streetViewControl: false, mapTypeControl: false }}
+              onClick={() => setSelected(null)}
+            >
+              {onlineCouriers.map(c => (
+                <Marker
+                  key={c.id}
+                  position={{ lat: Number(c.currentLat), lng: Number(c.currentLng) }}
+                  label={{ text: '🛵', fontSize: '22px' }}
+                  onClick={() => setSelected(c)}
+                />
+              ))}
+              {selected && selected.currentLat && (
+                <InfoWindow
+                  position={{ lat: Number(selected.currentLat), lng: Number(selected.currentLng) }}
+                  onCloseClick={() => setSelected(null)}
+                >
+                  <div style={{ fontFamily: "'Barlow', sans-serif", minWidth: 160 }}>
+                    <p style={{ fontWeight: 700, color: '#1c0800', marginBottom: 4 }}>{selected.user?.fullName}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#a89080' }}>{selected.user?.phone}</p>
+                    <p style={{ fontSize: '0.75rem', marginTop: 6, color: selected._count?.orders > 0 ? '#c8860a' : '#16a34a', fontWeight: 600 }}>
+                      {selected._count?.orders > 0 ? `${selected._count.orders} aktif sipariş` : 'Boşta'}
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                      <span style={{ fontSize: '0.72rem', color: '#a89080' }}>Puan:</span>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#c8860a' }}>★ {selected.rating?.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
+              <RefreshCw size={28} color="#c8860a" style={{ animation: 'spin 1s linear infinite' }} />
+            </div>
+          )}
+        </div>
+
+        {/* Sağ panel: kurye listesi */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(28,8,0,0.08)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(28,8,0,0.07)' }}>
+            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1c0800' }}>Çevrimiçi Kuryeler</h3>
+          </div>
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {onlineCouriers.length === 0 ? (
+              <p style={{ padding: 24, textAlign: 'center', color: '#a89080', fontSize: '0.825rem' }}>Şu an çevrimiçi kurye yok</p>
+            ) : (
+              onlineCouriers.map(c => (
+                <div
+                  key={c.id}
+                  onClick={() => setSelected(c)}
+                  style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid rgba(28,8,0,0.05)',
+                    cursor: 'pointer',
+                    background: selected?.id === c.id ? '#fef8ed' : 'transparent',
+                    transition: 'background 0.1s',
+                  }}
+                  onMouseEnter={e => { if (selected?.id !== c.id) (e.currentTarget as HTMLElement).style.background = '#faf9f7' }}
+                  onMouseLeave={e => { if (selected?.id !== c.id) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#fef8ed', border: '2px solid #c8860a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.78rem', fontWeight: 700, color: '#c8860a', flexShrink: 0 }}>
+                      {c.user?.fullName?.[0]?.toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 600, fontSize: '0.82rem', color: '#1c0800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.user?.fullName}</p>
+                      <p style={{ fontSize: '0.7rem', color: '#a89080', marginTop: 1 }}>★ {c.rating?.toFixed(1)} · {c.totalDeliveries} teslimat</p>
+                    </div>
+                    {(c._count?.orders ?? 0) > 0 && (
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, background: '#fef9c3', color: '#854d0e', padding: '2px 6px', borderRadius: 4, flexShrink: 0 }}>
+                        {c._count.orders}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
