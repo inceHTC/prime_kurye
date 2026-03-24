@@ -94,8 +94,25 @@ model Business {
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders      Order[]
+  apiKeys     ApiKey[]
 
   @@map("businesses")
+}
+
+// ================================
+// API ANAHTARI
+// ================================
+model ApiKey {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  key         String    @unique
+  lastUsedAt  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@map("api_keys")
 }
 
 // ================================

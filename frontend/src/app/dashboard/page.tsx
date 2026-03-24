@@ -158,15 +158,12 @@ export default function DashboardPage() {
               <LayoutDashboard size={15} color="#c8860a" />
               <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c8860a' }}>Siparişlerim</span>
             </div>
-            <Link href="/siparis" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
-              <Plus size={15} color="#7a6050" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Kurye Çağır</span>
-            </Link>
+          
             <Link href="/raporlar" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
               <BarChart2 size={15} color="#7a6050" />
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>Raporlar</span>
             </Link>
-            <Link href="/entegrasyon/api-dokumantasyon" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
+            <Link href="/dashboard/api" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 18px', textDecoration: 'none', borderLeft: '3px solid transparent', borderTop: '1px solid rgba(28,8,0,0.06)' }}>
               <FileText size={15} color="#7a6050" />
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a3020' }}>API Entegrasyon</span>
             </Link>
@@ -250,7 +247,7 @@ export default function DashboardPage() {
                 <p style={{ fontSize: '0.75rem', color: '#a89080' }}>Detaylı sipariş analizi</p>
               </div>
             </Link>
-            <Link href="/entegrasyon" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px', background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', textDecoration: 'none', transition: 'all 0.15s' }} className="quick-card">
+            <Link href="/dashboard/api" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px', background: '#fff', borderRadius: 12, border: '1px solid rgba(28,8,0,0.08)', textDecoration: 'none', transition: 'all 0.15s' }} className="quick-card">
               <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <FileText size={18} color="#2563eb" />
               </div>

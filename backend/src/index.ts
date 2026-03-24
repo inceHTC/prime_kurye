@@ -32,6 +32,7 @@ import reportRoutes from './routes/report.routes'
 import courierDocRoutes from './routes/courierDoc.routes'
 import passwordResetRoutes from './routes/passwordReset.routes'
 import addressRoutes from './routes/address.routes'
+import apikeyRoutes from './routes/apikey.routes'
 import { startCronJobs } from './services/cron.service'
 
 
@@ -93,6 +94,7 @@ app.use('/api/escrow', escrowRoutes)
 app.use('/api/reports', reportRoutes)
 app.use('/api/courier-docs', courierDocRoutes)
 app.use('/api/addresses', addressRoutes)
+app.use('/api/business/api-keys', apikeyRoutes)
 
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
